@@ -75,7 +75,7 @@ function MyObject(options){
       // if not, provide auto date default, which is the return 
       // value of new Date()
       type: 'date'
-      default: OptionSetter.default
+      default: OptionSetter.default()
     },
     param2: {
       // if options.param2 is provided, it must be a string
@@ -115,7 +115,7 @@ The above can be written more succicntly by removing comments:
 ```
 function MyObject(options){
   var defaults = {
-    param1: { type: 'date' default: OptionSetter.default },
+    param1: { type: 'date' default: OptionSetter.default() },
     param2: { type: 'string', default: 'param2' },
     param3: { type: 'array' },
     param4: 'param4', 
@@ -193,7 +193,7 @@ The expected type of the value.
 
 This can be one of the default types specified below or a user defined type
 created with `OptionSetter.addType`. Setting the type allows it to be validated as that type. 
-Further, when the default property is set to `OptionSetter.default`, the default will be provided 
+Further, when the default property is set to `OptionSetter.default()`, the default will be provided 
 according to the type specified.  (For example, the 'date' type provides a 
 default of the result of `new Date()`.)
 
@@ -209,7 +209,7 @@ name: {
 // which is the default setup by OptionSetter
 date: {
   type: 'date',
-  default: OptionSetter.default 
+  default: OptionSetter.default()
 }
 ```
 
@@ -246,11 +246,17 @@ you may want to provide a custom (less extreme) action upon failed validation of
 
 In this circumstance, one can provide a failedValidationAction function.
 
-The function will be passed the following parameter:
+This function will also be called if item is ommited.
+
+The function will be passed the following parameters:
 - `setObject` - the setObject, the first argument of `OptionSetter.setOptions`. 
+- `itemOmitted` (boolean) - whether or not this is a validation error
+(false) or an error generated from an item being omitted (true).
+
 This can be used to set properties on the setObject in a custom way.
 
 The return value of this function will be ignored.
+
 
 Example:
 
@@ -287,8 +293,7 @@ Specifies whether or not the value must be set on the `setObject`.
 Defaults to true if not provided.
 
 This is useful when a validation is desired if the value is given, 
-but no validation is required when the value is not given. In this circumstance,
-`require: false` should be set.
+but no validation is required when the value is not given. In this circumstance, `require: false` should be set.
 
 Example:
 
@@ -347,7 +352,7 @@ var default2 = {}; // does not cause error, 42 is used
 var default2 = { name: '42' }; // does not cause error
 ```
 
-If the default is `OptionSetter.default`, OptionSetter will automatically provide
+If the default is `OptionSetter.default()`, OptionSetter will automatically provide
 a default based on the type definition.
 
 ### default types
@@ -366,7 +371,7 @@ Default: false
 
 Javascript number type.
 
-Validates if values is a number equal to or between `-Infinity` and/or `Infinity`. Does not validate if `NaN` or `-NaN`.
+Validates if values is a number equal to or between `-Infinity` and/or `Infinity`. Does not validate if `NaN`.
 
 Default: 0
 
@@ -374,7 +379,7 @@ Default: 0
 
 Javascript object type.
 
-Validates if object.
+Validates if object, i.e. non-primitive, but fails for instances of array or function.
 
 Default: {}
 
@@ -398,7 +403,7 @@ Default: ''
 
 Javascript function type.
 
-Validates if function.
+Validates if function. (Always invalid for RegEx).
 
 Default: function(){}
 
@@ -418,13 +423,17 @@ with a *Type Definition* object.
 
 *Type definition properties*
 - `name` (string) - the name of the type
-- `default` (function) - a function that will return the default value for the type when `OptionSetter.default` is the default value
+- `default` (function) - a function that will return the default value for the type when `OptionSetter.default()` is the default value
 - `validator` (function) - a function that returns a boolean to indicate whether provided value is valid
-- `failMessage` (string) - the message generated when validation fails
+- `failMessage` (string|optional) - the message generated when validation fails
 
 The default function takes no paramters.
 
 The validator takes only one parameter, which is the value to validate.
+
+If failMessage is not given, the message generated will be 'failed validation'.
+
+Currently, it is impossible to overwrite a type. This is to prevent overwriting of default types.
 
 Example:
 
@@ -471,8 +480,10 @@ OptionSetter's default behavior is to throw an error if validation fails. This b
 a function that sets up alternative behaviors.
 
 The function is provided with the following parameters:
-- `name` - the name of the property that fails validation
+- `name` - the name of the property that fails validation or is omitted
 - `message` - the 'error' message provided by the type definition or paramter
+
+Note: this function also is called when an item is ommited. 
 
 Example:
 ```
