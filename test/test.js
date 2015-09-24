@@ -1,11 +1,27 @@
 var chai = require('chai');
 var expect = chai.expect;
 var should = chai.should();
+var OptionSetter; 
+
+beforeEach(function(){
+  OptionSetter = require('../OptionSetter.js');
+});
 
 describe('OptionSetter', function(){
+  it('should have version', function(){
+    OptionSetter.version.should.equal('0.1.0');
+  });
+
   describe('.setOptions', function(){
-    it('should do nothing if given emply object');
-    it('should return setObject');
+    it('should do nothing if given empty objects');
+
+    it('should return setObject', function(){
+      var setObject = {};
+      var returnValue = OptionSetter.setOptions(setObject,{},{});
+
+      returnValue.should.equal(setObject);
+    });
+
     it('should add properties to setObject');
     it('should error if options is undefined');
     it('should error if defaults is undefined');
@@ -19,6 +35,7 @@ describe('OptionSetter', function(){
       it('should apply naked default value if not given in options');
       it('should set properties on setObject with the same name');
 
+      // these tests should look more like examples
       describe('type', function(){
         it('should invalidate inputs of wrong type'); 
         it('should not invalidate defaults of wrong type'); 

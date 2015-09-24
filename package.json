@@ -2,7 +2,7 @@
   "name": "optionsetter.js",
   "version": "0.1.0",
   "description": "A library to simplify the use of options objects.",
-  "main": "main.js",
+  "main": "OptionSetter.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
