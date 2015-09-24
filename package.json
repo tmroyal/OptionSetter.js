@@ -1,0 +1,25 @@
+{
+  "name": "optionsetter.js",
+  "version": "0.1.0",
+  "description": "A library to simplify the use of options objects.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tmroyal/OptionSetter.js.git"
+  },
+  "keywords": [
+    "options"
+  ],
+  "author": "Thomas Royal (thomas.m.royal@gmail.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tmroyal/OptionSetter.js/issues"
+  },
+  "homepage": "https://github.com/tmroyal/OptionSetter.js#readme",
+  "devDependencies": {
+    "chai": "^3.3.0"
+  }
+}
