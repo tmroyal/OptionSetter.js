@@ -113,7 +113,19 @@ describe('OptionSetter', function(){
       });
 
       describe('required', function(){
-        it('should be true by default');
+
+        it('should be true by default',function(){
+          var defaults = {
+            requiredValue: {}
+          };
+
+          expect(function(){
+            OptionSetter.setOptions({}, defaults, {});
+          }).to.throw(
+            'OptionSetter: requiredValue must be provided'
+          );
+        });
+
         it( 'when true, should cause throw if value not'+
             ' provided in options', 
             function(){
@@ -122,6 +134,7 @@ describe('OptionSetter', function(){
                   required: true
                 }
               }
+
               expect(function(){
                 OptionSetter.setOptions({}, defaults, {});
               }).to.throw(
@@ -129,8 +142,32 @@ describe('OptionSetter', function(){
               );
             }
         ); 
-        it('should not cause throw if there is a default'); 
-        it('should allow no options to be set when false');
+
+        it('should not cause throw if there is a default', function(){
+          var defaults = {
+            requiredValue: {
+              required: true,
+              default: 'value'
+            }
+          };
+
+          expect(function(){
+            OptionSetter.setOptions({}, defaults, {});
+          }).to.not.throw();
+        });
+
+        it('should allow no options to be set when false', function(){
+          var defaults = {
+            unRequired: {
+              required: false
+            }
+          }
+
+          expect(function(){
+            OptionSetter.setOptions({}, defaults, {});
+          }).to.not.throw();
+        });
+
       });
 
       describe('sourceName', function(){
