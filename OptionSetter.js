@@ -149,15 +149,16 @@ var OptionSetter = function(){
     return setObject;
   };
 
+  Setter._types = {};
+
   Setter.addType = function(typeDefinition){
     var errPrefix = 'OptionSetter.addType:';
-
 
     verifyObject({ input: typeDefinition, 
       inputName: 'type definition', errPrefix: errPrefix });
 
-    if (typeDefinition.name === undefined){
-      typeDefintion.name = 'validation failed';
+    if (typeDefinition.failMessage === undefined){
+      typeDefinition.failMessage = 'validation failed';
     }
 
     verifyString({ input: typeDefinition.name, inputName: 'name',
@@ -168,6 +169,15 @@ var OptionSetter = function(){
       inputName: 'validator', errPrefix: errPrefix });
     verifyString({ input: typeDefinition.failMessage, 
       inputName: 'fail message', errPrefix: errPrefix });
+
+    if (this._types[typeDefinition.name]){
+      throw new Error(
+        'OptionSetter.addType: cannot overwrite type testType'
+      );
+    } else {
+      this._types[typeDefinition.name] = typeDefinition;
+    }
+
 
   };
 

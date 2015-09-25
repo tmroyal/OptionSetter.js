@@ -5,6 +5,7 @@ var OptionSetter;
 
 beforeEach(function(){
   OptionSetter = require('../OptionSetter.js');
+  OptionSetter._types = {};
 });
 
 describe('OptionSetter', function(){
@@ -295,9 +296,22 @@ describe('OptionSetter', function(){
       );
     });
 
-    it('should create type with name');
+    it('should create type at name', function(){
+      OptionSetter.addType(testTypeDef);
+      OptionSetter._types['testType'].should.equal(testTypeDef);
+    });
 
-    it('should error if not given a name');
+
+    it('should error if not given a name', function(){
+      delete testTypeDef.name;
+
+      expect(function(){
+        OptionSetter.addType(testTypeDef);
+      }).to.throw(
+        'OptionSetter.addType: must provide name'
+      );
+    });
+
     it('should error if given a non-string name', function(){
       testTypeDef.name = [];
       expect(function(){
@@ -307,9 +321,16 @@ describe('OptionSetter', function(){
       );
     });
 
-    it('should set default function');
+    it('should error if not given a default', function(){
+      delete testTypeDef.default;
 
-    it('should error if not given a default');
+      expect(function(){
+        OptionSetter.addType(testTypeDef);
+      }).to.throw(
+        'OptionSetter.addType: must provide default'
+      );
+    });
+
     it('should error if given non-function as default', function(){
       testTypeDef.default = '';
 
@@ -321,8 +342,17 @@ describe('OptionSetter', function(){
 
     });
 
-    it('should set validator');
-    it('should error if not given a validator');
+
+    it('should error if not given a validator', function(){
+      delete testTypeDef.validator;
+
+      expect(function(){
+        OptionSetter.addType(testTypeDef);
+      }).to.throw(
+        'OptionSetter.addType: must provide validator'
+      );
+    });
+
     it('should error if given non-function validator', function(){
       testTypeDef.validator = '';
 
@@ -333,10 +363,9 @@ describe('OptionSetter', function(){
       );
     });
 
+    // TODO - how?
     it('should error if validator returns non boolean');
     
-    it('should set failMessage');
-
     it('should error if given non-string fail message', function(){
       testTypeDef.failMessage = {};
 
@@ -347,9 +376,26 @@ describe('OptionSetter', function(){
       );
     });
 
-    it('should set failMessage to "validation failed" if not given');
+    it('should set failMessage to "validation failed" if not given',
+      function(){
+        delete testTypeDef.failMessage;
+        OptionSetter.addType(testTypeDef);
+        OptionSetter._types.testType.failMessage
+          .should.equal('validation failed');
+      }
+    );
 
-    it('should error if instructed to overwrite existing type');
+    it('should error if instructed to overwrite existing type', 
+      function(){
+        OptionSetter.addType(testTypeDef);
+
+        expect(function(){
+          OptionSetter.addType(testTypeDef);
+        }).to.throw(
+          'OptionSetter.addType: cannot overwrite type testType'
+        );
+      }
+    );
   });
 
   describe('.addTypes', function(){
