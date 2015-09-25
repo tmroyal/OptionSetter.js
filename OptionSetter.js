@@ -163,10 +163,13 @@ var OptionSetter = function(){
 
     verifyString({ input: typeDefinition.name, inputName: 'name',
       errPrefix: errPrefix });
+
     verifyFunction({ input: typeDefinition.default, 
       inputName: 'default', errPrefix: errPrefix });
+
     verifyFunction({ input: typeDefinition.validator, 
       inputName: 'validator', errPrefix: errPrefix });
+
     verifyString({ input: typeDefinition.failMessage, 
       inputName: 'fail message', errPrefix: errPrefix });
 
@@ -177,8 +180,18 @@ var OptionSetter = function(){
     } else {
       this._types[typeDefinition.name] = typeDefinition;
     }
+  };
 
+  Setter.getValidator = function(name){
+    verifyString({ input: name, inputName: 'name', 
+      errPrefix: 'OptionSetter.getValidator:'});
 
+    if (!this._types[name]){
+      throw new Error(
+          'OptionSetter.getValidator: name '+name+' not found');
+    }
+
+    return this._types[name].validator;
   };
 
   return Setter;

@@ -9,6 +9,7 @@ beforeEach(function(){
 });
 
 describe('OptionSetter', function(){
+
   it('should have version', function(){
     OptionSetter.version.should.equal('0.1.0');
   });
@@ -25,7 +26,14 @@ describe('OptionSetter', function(){
       returnValue.should.equal(setObject);
     });
 
-    it('should add properties to setObject');
+    it('should add properties to setObject', function(){
+      var setObject = {};
+      var options = { test: 'test'};
+      var returnValue = OptionSetter.setOptions(setObject,{},options);
+
+      setObject.test.should.equal('test');
+
+    });
 
     it('should error if options is undefined', function(){
       expect(function(){
@@ -406,7 +414,6 @@ describe('OptionSetter', function(){
     it('should overwrite validator for specified type'); 
     it('should error if given non-string name');
     it('should error if validatorFunction is not a function');
-    it('should error if validatorFunction does not return a boolean');
   });
 
   describe('.setDefault', function(){
@@ -416,8 +423,40 @@ describe('OptionSetter', function(){
   });
 
   describe('.getValidator', function(){
-    it('should return validator for specified type');
-    it('should error if given non-string');
+
+    it('should return validator for specified type', function(){
+      var validator = function(){ return true; };
+      var typeDef = {
+        name: 'testType',
+        default: function(){ return ''; },
+        validator: validator
+      }
+      OptionSetter.addType(typeDef);
+
+      OptionSetter.getValidator('testType').should.equal(validator);
+    });
+
+    it('should error if not given name', function(){
+      expect(function(){
+        OptionSetter.getValidator();
+      }).to.throw('OptionSetter.getValidator: must provide name');
+    });
+
+    it('should error if given non-string', function(){
+      expect(function(){
+        OptionSetter.getValidator({});
+      }).to.throw(
+        'OptionSetter.getValidator: name must be type string'
+      );
+    });
+
+    it('should error if type not found', function(){
+      expect(function(){
+        OptionSetter.getValidator('non-existant');
+      }).to.throw(
+        'OptionSetter.getValidator: name non-existant not found'
+      );
+    });
   });
 
   describe('.setFailedValidationAction', function(){
