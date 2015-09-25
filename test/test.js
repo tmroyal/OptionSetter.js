@@ -57,7 +57,6 @@ describe('OptionSetter', function(){
     describe('defaultsObject', function(){
       it('should apply naked default value if not given in options',
         function(){
-
           var defaults = {
             testValue: 'testValue',
           }
@@ -67,6 +66,23 @@ describe('OptionSetter', function(){
           OptionSetter.setOptions( setObject, defaults, options);
 
           setObject.testValue.should.equal('testValue');
+        }
+      );
+
+      it('should not appy naked default if given in options',
+        function(){
+          var defaults = {
+            testValue: 'testValue',
+          }
+          var options = {
+            testValue: 'provided value'
+          };
+          var setObject = {};
+
+          OptionSetter.setOptions( setObject, defaults, options);
+
+          setObject.testValue.should.equal('provided value');
+
         }
       );
 
@@ -98,13 +114,28 @@ describe('OptionSetter', function(){
 
       describe('required', function(){
         it('should be true by default');
-        it('when true, should cause throw if value not provided in options'); 
+        it( 'when true, should cause throw if value not'+
+            ' provided in options', 
+            function(){
+              var defaults = {
+                requiredValue: {
+                  required: true
+                }
+              }
+              expect(function(){
+                OptionSetter.setOptions({}, defaults, {});
+              }).to.throw(
+                'OptionSetter: requiredValue must be provided'
+              );
+            }
+        ); 
         it('should not cause throw if there is a default'); 
         it('should allow no options to be set when false');
       });
 
       describe('sourceName', function(){
         it('should point to name in object'); 
+        it('should error if not a string');
       });
 
       describe('default', function(){

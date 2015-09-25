@@ -17,6 +17,10 @@ var OptionSetter = function(){
 
   var os_default = {};
 
+  var failedValidationAction = function(name, message){
+    throw new Error('OptionSetter: '+name+' '+message);
+  };
+
   function verifyExists(argument, objectName){
     if (argument === undefined){
       throw new Error('OptionSetter: must provide '+objectName);
@@ -42,15 +46,23 @@ var OptionSetter = function(){
     if ( _.isObject(def) ){
       optionName = def.sourceName || defaultName;
 
-      if (options[optionName]){
-      } else {
-        if (def.default){
-          value = def.default;
-        }
+      value = options[optionName];
+
+      if (value && (def.validator || def.type)){
+        // this will make it undefined
+        // value = validatedValue(value, def);
+      }
+
+      if (value === undefined && def.default) {
+        value = def.default;
+      }
+
+      if (value === undefined && def.required !== false){
+        failedValidationAction(optionName, 'must be provided');
       }
     } else {
       optionName = defaultName;
-      value = def;
+      value = options[optionName] || def;
     }
 
     return {
@@ -78,6 +90,7 @@ var OptionSetter = function(){
 
     return setObject;
   };
+
 
   return Setter;
 }();
