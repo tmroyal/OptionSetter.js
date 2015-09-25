@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/tmroyal/OptionSetter.js#readme",
   "devDependencies": {
-    "chai": "^3.3.0"
+    "chai": "^3.3.0",
+    "lodash": "^3.10.1"
   }
 }

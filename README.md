@@ -44,10 +44,14 @@ automatic defaults, standard validations, and other capbilities.
 
 (Note: some of these problems will be remedied by ECMAScript 2015 proxies and default parameters.)
 
+## Requirements
+
+Lodash/Underscore. (Custom lodash builds can use only the lang module.)
 
 ## Usage
 
 ```
+<script src="
 <script src="dst/OptionSetter.js"></script>
 <script>
 OptionsSetter.setOptions({},{},{});
@@ -186,6 +190,22 @@ var defaults = {
   tags: [] // default is empty array. This property is not validated.
 };
 ```
+
+Note: in order to supply a default object that is not validated, one must supply it like this: 
+
+```
+var defaults = {
+  myObject: {
+    default: {
+      foo: 'bar'
+    } // does not validate as no type is specified
+  }
+};
+```
+
+This is because the library has no way of distinguishing between a defaults property object, and an object
+that is meant as a default. If an object is supplied, the library will look for any validation infomation,
+and act on it if it exists.
 
 #### type (String)
 

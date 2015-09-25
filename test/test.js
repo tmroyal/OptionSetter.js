@@ -11,9 +11,11 @@ describe('OptionSetter', function(){
   it('should have version', function(){
     OptionSetter.version.should.equal('0.1.0');
   });
+  
+  it('should throw error if _ is not defined in browser');
+  it('should require _ if not defined');
 
   describe('.setOptions', function(){
-    it('should do nothing if given empty objects');
 
     it('should return setObject', function(){
       var setObject = {};
@@ -23,16 +25,50 @@ describe('OptionSetter', function(){
     });
 
     it('should add properties to setObject');
-    it('should error if options is undefined');
-    it('should error if defaults is undefined');
-    it('should error if setObject is undefined');
+
+    it('should error if options is undefined', function(){
+      expect(function(){
+        OptionSetter.setOptions({},{});
+      }).to.throw('OptionSetter: must provide options object');
+    });
+
+    it('should error if defaults is undefined', function(){
+      expect(function(){
+        OptionSetter.setOptions({}, undefined, {});
+      }).to.throw('OptionSetter: must provide defaults object');
+    });
+
+    it('should error if setObject is undefined', function(){
+      expect(function(){
+        OptionSetter.setOptions(undefined, {}, {});
+      }).to.throw('OptionSetter: must provide setObject');
+    });
 
     describe('optionsObject', function(){
-      it('should copy properties not in defaultsObject to setObject');
+      it('should copy properties not in defaultsObject to setObject',
+        function(){
+          var setObject = {};
+          OptionSetter.setOptions( setObject, {}, { optProp: 'prop'});
+          setObject.optProp.should.equal('prop');
+        }
+      );
     });
 
     describe('defaultsObject', function(){
-      it('should apply naked default value if not given in options');
+      it('should apply naked default value if not given in options',
+        function(){
+
+          var defaults = {
+            testValue: 'testValue',
+          }
+          var options = {};
+          var setObject = {};
+
+          OptionSetter.setOptions( setObject, defaults, options);
+
+          setObject.testValue.should.equal('testValue');
+        }
+      );
       it('should set properties on setObject with the same name');
 
       // these tests should look more like examples
@@ -81,7 +117,7 @@ describe('OptionSetter', function(){
 
     describe('defaultTypes', function(){
 
-      // all of these should test on object
+      // all of these should test on {} as well
 
       describe('boolean', function(){
         it('should validate boolean'); 
