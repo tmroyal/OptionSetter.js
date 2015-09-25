@@ -157,12 +157,14 @@ var OptionSetter = function(){
     verifyObject({ input: typeDefinition, 
       inputName: 'type definition', errPrefix: errPrefix });
 
-    if (typeDefinition.failMessage === undefined){
-      typeDefinition.failMessage = 'validation failed';
-    }
-
     verifyString({ input: typeDefinition.name, inputName: 'name',
       errPrefix: errPrefix });
+
+    if (typeDefinition.failMessage === undefined){
+      typeDefinition.failMessage = 
+        'must be type '+typeDefinition.name;
+    }
+
 
     verifyFunction({ input: typeDefinition.default, 
       inputName: 'default', errPrefix: errPrefix });
@@ -193,6 +195,26 @@ var OptionSetter = function(){
 
     return this._types[name].validator;
   };
+
+  // built-in types
+
+  Setter.addType({
+    name: 'boolean',
+    default: function(){
+      return false;
+    },
+    validator: _.isBoolean
+  });
+
+  Setter.addType({
+    name: 'number',
+    default: function(){
+      return 0;
+    },
+    validator: function(value){
+      return _.isNumber(value) && !_.isNaN(value);
+    }
+  });
 
   return Setter;
 }();

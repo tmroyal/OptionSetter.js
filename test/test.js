@@ -5,7 +5,6 @@ var OptionSetter;
 
 beforeEach(function(){
   OptionSetter = require('../OptionSetter.js');
-  OptionSetter._types = {};
 });
 
 describe('OptionSetter', function(){
@@ -232,17 +231,61 @@ describe('OptionSetter', function(){
       // all of these should test on {} as well
 
       describe('boolean', function(){
-        it('should validate boolean'); 
-        it('should invalidate non boolean'); 
-        it('should default to false');
+        var booleanValidator, booleanType;
+
+        beforeEach(function(){
+          booleanValidator = OptionSetter.getValidator('boolean');
+          booleanType = OptionSetter._types.boolean;
+        });
+
+        it('should create boolean type', function(){
+          booleanType.should.not.be.undefined;
+        });
+
+        it('should validate boolean', function(){
+          booleanValidator(true).should.be.true;  
+          booleanValidator(false).should.be.true;  
+        }); 
+
+        it('should invalidate non boolean', function(){
+          booleanValidator('').should.be.false;  
+          booleanValidator({}).should.be.false;  
+        }); 
+
+        it('should default to false', function(){
+          booleanType.default().should.be.false;
+        });
       }); 
 
       describe('number', function(){
-        it('should invalidate non number'); 
-        it('should validate Infinity'); 
-        it('should validate -Infinity'); 
-        it('should invalidate NaN');
-        it('should default to 0');
+        var numberType, numberValidator;
+
+        beforeEach(function(){
+          numberType = OptionSetter._types.number;
+          numberValidator = OptionSetter.getValidator('number');
+        });
+
+        it('should invalidate non number', function(){
+          numberValidator({}).should.be.false;
+          numberValidator('').should.be.false;
+        }); 
+
+        it('should validate number', function(){
+          numberValidator(0).should.be.true;
+        });
+
+        it('should validate Infinity', function(){
+          numberValidator(Infinity).should.be.true;
+          numberValidator(-Infinity).should.be.true;
+        });
+
+        it('should invalidate NaN', function(){
+          numberValidator(NaN).should.be.false;
+        });
+
+        it('should default to 0', function(){
+          numberType.default().should.equal(0);
+        });
       }); 
 
       describe('object', function(){
@@ -281,6 +324,7 @@ describe('OptionSetter', function(){
   });
 
   describe('.default()', function(){
+    // how to test? should I?
     it('should return a reference to default flag object'); 
   });
 
@@ -292,8 +336,13 @@ describe('OptionSetter', function(){
         name: 'testType',
         default: function(){ return true;},
         validator: function(){ return true;},
-        failMessage: 'validation failed' 
+        failMessage: 'failed' 
       };
+    });
+
+    afterEach(function(){
+      // meh
+      delete OptionSetter._types['testType'];
     });
 
     it('should error if given no object', function(){
@@ -347,7 +396,6 @@ describe('OptionSetter', function(){
       }).to.throw(
         'OptionSetter.addType: default must be type function'
       );
-
     });
 
 
@@ -384,12 +432,12 @@ describe('OptionSetter', function(){
       );
     });
 
-    it('should set failMessage to "validation failed" if not given',
+    it('should set failMessage to "must be type [name]" if not given',
       function(){
         delete testTypeDef.failMessage;
         OptionSetter.addType(testTypeDef);
         OptionSetter._types.testType.failMessage
-          .should.equal('validation failed');
+          .should.equal('must be type testType');
       }
     );
 
@@ -461,6 +509,7 @@ describe('OptionSetter', function(){
 
   describe('.setFailedValidationAction', function(){
     it('should error if given non-function');
+    // test by conditioning fail, and spy
     it('should set failedValidationAction');
     it('should be called with name of object');
     it('should be called with error message of object');
