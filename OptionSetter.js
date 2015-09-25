@@ -36,14 +36,27 @@ var OptionSetter = function(){
 
   function reconcileDefault(defaultName, defaults, options){
     var def = defaults[defaultName];
-    var result = {};
-    if ( _.isObject(def)){
+    var optionName;
+    var value;
 
+    if ( _.isObject(def) ){
+      optionName = def.sourceName || defaultName;
+
+      if (options[optionName]){
+      } else {
+        if (def.default){
+          value = def.default;
+        }
+      }
     } else {
-      result.optionName = defaultName;
-      result.value = def;
+      optionName = defaultName;
+      value = def;
     }
-    return result;
+
+    return {
+      optionName: optionName,
+      value: value
+    };
   }
 
   Setter.setOptions = function(setObject, defaults, options){

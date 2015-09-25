@@ -69,7 +69,6 @@ describe('OptionSetter', function(){
           setObject.testValue.should.equal('testValue');
         }
       );
-      it('should set properties on setObject with the same name');
 
       // these tests should look more like examples
       describe('type', function(){
@@ -109,7 +108,19 @@ describe('OptionSetter', function(){
       });
 
       describe('default', function(){
-        it('should set if option not provided');
+        it('should set if option not provided', function(){
+          var setObject = {};
+          var defaults = {
+            testProp: {
+              default: 'default'
+            }
+          };
+
+          OptionSetter.setOptions(setObject, defaults, {});
+
+          setObject.testProp.should.equal('default');
+        });
+
         it('should not cause invalidation');
         it('should use type default if OptionSetter.default is provided');
       });
