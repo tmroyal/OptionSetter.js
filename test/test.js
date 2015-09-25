@@ -29,19 +29,43 @@ describe('OptionSetter', function(){
     it('should error if options is undefined', function(){
       expect(function(){
         OptionSetter.setOptions({},{});
-      }).to.throw('OptionSetter: must provide options object');
+      }).to.throw('OptionSetter.setOptions: must provide options object');
+    });
+
+    it('should error if options is not an object', function(){
+      expect(function(){
+        OptionSetter.setOptions({},{},'object');
+      }).to.throw(
+        'OptionSetter.setOptions: options object must be type object'
+      );
     });
 
     it('should error if defaults is undefined', function(){
       expect(function(){
         OptionSetter.setOptions({}, undefined, {});
-      }).to.throw('OptionSetter: must provide defaults object');
+      }).to.throw('OptionSetter.setOptions: must provide defaults object');
+    });
+
+    it('should error if default is not an object', function(){
+      expect(function(){
+        OptionSetter.setOptions({},'object', {});
+      }).to.throw(
+        'OptionSetter.setOptions: defaults object must be type object'
+      );
     });
 
     it('should error if setObject is undefined', function(){
       expect(function(){
         OptionSetter.setOptions(undefined, {}, {});
-      }).to.throw('OptionSetter: must provide setObject');
+      }).to.throw('OptionSetter.setOptions: must provide setObject');
+    });
+
+    it('should error is setObject is not an object', function(){
+      expect(function(){
+        OptionSetter.setOptions('obect', {}, {});
+      }).to.throw(
+        'OptionSetter.setOptions: setObject must be type object'
+      );
     });
 
     describe('optionsObject', function(){
@@ -251,24 +275,79 @@ describe('OptionSetter', function(){
     it('should return a reference to default flag object'); 
   });
 
-  // i am afriad that these validations must happen by
-  // hand, as addType will be used to create the types.
-  // bootstrapping happens here
   describe('.addType', function(){
-    it('should error if given no object');
+    var testTypeDef;
 
-    it('should create type with name'); 
-    it('should error if given a non-string name');
+    beforeEach(function(){
+      testTypeDef = {
+        name: 'testType',
+        default: function(){ return true;},
+        validator: function(){ return true;},
+        failMessage: 'validation failed' 
+      };
+    });
+
+    it('should error if given no object', function(){
+      expect(function(){
+        OptionSetter.addType();
+      }).to.throw(
+        'OptionSetter.addType: must provide type definition'
+      );
+    });
+
+    it('should create type with name');
+
+    it('should error if not given a name');
+    it('should error if given a non-string name', function(){
+      testTypeDef.name = [];
+      expect(function(){
+        OptionSetter.addType(testTypeDef);
+      }).to.throw(
+        'OptionSetter.addType: name must be type string'
+      );
+    });
 
     it('should set default function');
-    it('should error if given non-function as default');
+
+    it('should error if not given a default');
+    it('should error if given non-function as default', function(){
+      testTypeDef.default = '';
+
+      expect(function(){
+        OptionSetter.addType(testTypeDef);
+      }).to.throw(
+        'OptionSetter.addType: default must be type function'
+      );
+
+    });
 
     it('should set validator');
-    it('should error if given non-function validator');
+    it('should error if not given a validator');
+    it('should error if given non-function validator', function(){
+      testTypeDef.validator = '';
+
+      expect(function(){
+        OptionSetter.addType(testTypeDef);
+      }).to.throw(
+        'OptionSetter.addType: validator must be type function'
+      );
+    });
+
     it('should error if validator returns non boolean');
     
     it('should set failMessage');
-    it('should error if given non-string fail message');
+
+    it('should error if given non-string fail message', function(){
+      testTypeDef.failMessage = {};
+
+      expect(function(){
+        OptionSetter.addType(testTypeDef);
+      }).to.throw(
+        'OptionSetter.addType: fail message must be type string'
+      );
+    });
+
+    it('should set failMessage to "validation failed" if not given');
 
     it('should error if instructed to overwrite existing type');
   });
