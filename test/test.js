@@ -1,7 +1,15 @@
 var chai = require('chai');
 var expect = chai.expect;
 var should = chai.should();
+var sinon = require('sinon');
 var OptionSetter; 
+var root;
+
+try {
+  root = window;
+} catch (e) {
+  root = global;
+}
 
 beforeEach(function(){
   OptionSetter = require('../OptionSetter.js');
@@ -418,13 +426,15 @@ describe('OptionSetter', function(){
         });
 
         it('should default to new Date()', function(){
-          var oldDate = Date;
-          Date = function(){ this.called = true; }
+          var newDateResult = {};
+          var dateStub = sinon.stub(root, 'Date')
+                         .returns(newDateResult);
 
-          console.log(dateType.default());
-          dateType.default().called.should.be.true;
+          dateType.default().should.equal(newDateResult);
+          dateStub.calledWithNew().should.be.true;
 
-          Date = oldDate;
+          Date.restore();
+
         });
       }); 
     });
