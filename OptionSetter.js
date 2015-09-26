@@ -164,7 +164,8 @@ var OptionSetter = function(){
 
       value = options[optionName];
 
-      if (value !== undefined && (def.validator || def.type)){
+      if (value !== undefined && 
+          (def.validator !== undefined || def.type !== undefined)){
         value = 
           validatedValue(value, defaultName, def, setObj, failCB);
         return {
