@@ -269,6 +269,8 @@ In this circumstance, one can provide a failedValidationAction function.
 This function will also be called if item is ommited.
 
 The function will be passed the following parameters:
+- `name` - the name of the object
+- `message` - the error message
 - `setObject` - the setObject, the first argument of `OptionSetter.setOptions`. 
 - `itemOmitted` (boolean) - whether or not this is a validation error
 (false) or an error generated from an item being omitted (true).
@@ -283,9 +285,9 @@ Example:
 ```
 name: {
   type: 'string',
-  failedValidationAction: function(setObject){
+  failedValidationAction: function(name, message, setObject){
     setObject.name = 'Invalid Given';
-    setObject.errors.push('name is not a string');
+    setObject.errors.push(name+' '+message);
   }
 }
 ```
