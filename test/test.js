@@ -6,7 +6,7 @@ var sinon = require('sinon');
 var OptionSetter; 
 var root;
 
-// if browser, root = window, if node, global
+// if browser, root = window, if node, root = global
 try {
   root = window;
 } catch (e) {
@@ -274,10 +274,50 @@ describe('OptionSetter', function(){
       });
 
       describe('failedValidationAction', function(){
-        it('should be called if validation fails'); 
-        it('should be called with set object');
-        it('should be called with omitted param false if validation error');
-        it('should be called with omitted param true if omission error');
+
+        it('should be called if validation fails', function(){
+          var defaults = {
+            test: {
+              validator: function(){ return false; },
+              failedValidationAction: sinon.spy()
+            }
+          };
+          var options = { test: 1 };
+          
+          OptionSetter.setOptions({}, defaults, options);
+        }); 
+
+        it('should be called with name, message, setObject and ommission error',
+          function(){
+            var setObject = {};
+            var defaults = {
+              test: {
+                validator: function(){ return false; },
+                failedValidationAction: sinon.spy()
+              }
+            };
+            var options = { test: 1 };
+
+            OptionSetter.setOptions(setObject, defaults, options);
+            
+            defaults.test.failedValidationAction.args[0]
+              .should.deep.equal(
+                ['test', 'failed validation', setObject, false]
+              );
+          }
+        );
+
+        it('should be called with omitted param true '+
+           'if omission error', function(){
+             var defaults = {
+               test: {
+                 failedValidationAction: sinon.spy()
+               }
+             }
+             OptionSetter.setOptions({},defaults, {}); 
+             defaults.test.failedValidationAction
+                .args[0][3].should.be.true;
+           });
       });
 
       describe('failMessage', function(){
@@ -750,7 +790,9 @@ describe('OptionSetter', function(){
   describe('.setDefault', function(){
     it('should overwrite default generator for specified type'); 
     it('should error if given non-string name');
+    it('should error if not given a name');
     it('should error if defaultFunction is not a function');
+    it('should error if defaultFunction is not given');
   });
 
   describe('.getValidator', function(){

@@ -26,8 +26,9 @@ var OptionSetter = function(){
     throw new Error('OptionSetter.setOptions: '+name+' '+message);
   };
 
-  // these functions are for functions within library, 
-  // but do not provide the functionality of the library
+  // these functions are for util functions in the library.
+  // they do not provide the validations that the end user
+  // uses, but are only used internally.
   // throws Error if not provided valid argument type
   function verifyType(opt){
     opt.errPrefix = opt.errPrefix || 'OptionSetter:';
@@ -82,10 +83,11 @@ var OptionSetter = function(){
 
   // returns validated value, or undefined if
   // value does not validate
-  function validatedValue(value, defaultName, def){
+  function validatedValue(value, defaultName, def, setObj, failCB){
     var type, defaultValidator;
     var valid;
     var failMessage;
+
       
     // get default validator and fail message from type
     // if provided. fail if given not defined type
@@ -93,8 +95,11 @@ var OptionSetter = function(){
       type = Setter._types[def.type];
 
       if (type === undefined){
-        failedValidationAction(defaultName, 
-          'refers to type "'+def.type+'" which has not been defined');
+        failCB(
+          defaultName, 
+          'refers to type "'+def.type+'" which has not been defined',
+          setObj, 
+          false);
         return;
       }
 
@@ -110,20 +115,23 @@ var OptionSetter = function(){
     // or provided validator
     if (def.validator !== undefined){
       valid = def.validator(value, defaultValidator);
-      if (!_.isBoolean(valid)){
-        failedValidationAction(
-          defaultName, 
-          'has a validator that returns non-boolean'
-        );
-      }
     } else {
       valid = defaultValidator(value); 
+    }
+
+    if (!_.isBoolean(valid)){
+      failCB(
+        defaultName, 
+        'has a validator that returns non-boolean',
+        setObj,
+        false
+      );
     }
 
     if (valid){
       return value;
     } else {
-      failedValidationAction(defaultName, failMessage);
+      failCB(defaultName, failMessage, setObj, false);
       return;
     }
   };
@@ -135,10 +143,11 @@ var OptionSetter = function(){
   // return object containing value (or undefined if 
   // validation fails or there is no value) and either
   // default name or, if it exists, defaults[defaultName].sourceName
-  function reconcileDefault(defaultName, defaults, options){
+  function reconcileDefault(defaultName, defaults, options, setObj){
     var def = defaults[defaultName];
     var optionName;
     var value;
+    var failCB = def.failedValidationAction || failedValidationAction;
 
     if ( _.isObject(def) ){
       optionName = def.sourceName || defaultName;
@@ -146,7 +155,8 @@ var OptionSetter = function(){
       value = options[optionName];
 
       if (value !== undefined && (def.validator || def.type)){
-        value = validatedValue(value, defaultName, def);
+        value = 
+          validatedValue(value, defaultName, def, setObj, failCB);
         return {
           optionName: optionName,
           value: value
@@ -158,7 +168,7 @@ var OptionSetter = function(){
       }
 
       if (value === undefined && def.required !== false){
-        failedValidationAction(optionName, 'must be provided');
+        failCB(optionName, 'must be provided', setObj, true);
       }
     } else {
       optionName = defaultName;
@@ -191,13 +201,16 @@ var OptionSetter = function(){
 
     for (var def in defaults){
       if (defaults.hasOwnProperty(def)){
-        var reconciledDef = reconcileDefault(def, defaults, options);
-        setObject[def] = reconciledDef.value;
+        var reconciledDef = 
+          reconcileDefault(def, defaults, options, setObject);
+        if (reconciledDef.value){
+          setObject[def] = reconciledDef.value;
+        }
         usedOptions[reconciledDef.optionName] = true;
       }
     }
 
-    setObject = applyUnusedOptions(setObject, options, usedOptions);
+    applyUnusedOptions(setObject, options, usedOptions);
 
     return setObject;
   };
