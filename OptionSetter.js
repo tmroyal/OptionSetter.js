@@ -83,20 +83,47 @@ var OptionSetter = function(){
   // returns validated value, or undefined if
   // value does not validate
   function validatedValue(value, defaultName, def){
-    var type = Setter._types[def.type];
-    if (type === undefined){
-      failedValidationAction(defaultName, 
-        'refers to type "'+def.type+'" which has not been defined');
-      return 
+    var type, defaultValidator;
+    var valid;
+    var failMessage;
+      
+    // get default validator and fail message from type
+    // if provided. fail if given not defined type
+    if (def.type !== undefined){
+      type = Setter._types[def.type];
+
+      if (type === undefined){
+        failedValidationAction(defaultName, 
+          'refers to type "'+def.type+'" which has not been defined');
+        return;
+      }
+
+      defaultValidator = type.validator;
+      failMessage = type.failMessage;
+    } else {
+
+      defaultValidator = function(){ return true; }
+      failMessage = 'failed validation';
     }
 
-    var defaultValidator = type.validator;
-    var valid = defaultValidator(value); 
+    // validate with either type validator
+    // or provided validator
+    if (def.validator !== undefined){
+      valid = def.validator(value, defaultValidator);
+      if (!_.isBoolean(valid)){
+        failedValidationAction(
+          defaultName, 
+          'has a validator that returns non-boolean'
+        );
+      }
+    } else {
+      valid = defaultValidator(value); 
+    }
 
     if (valid){
       return value;
     } else {
-      failedValidationAction(defaultName, type.failMessage);
+      failedValidationAction(defaultName, failMessage);
       return;
     }
   };

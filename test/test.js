@@ -130,7 +130,6 @@ describe('OptionSetter', function(){
         }
       );
 
-      // these tests should look more like examples
       describe('type', function(){
 
         it('should invalidate inputs of wrong type', function(){
@@ -186,11 +185,92 @@ describe('OptionSetter', function(){
       });
 
       describe('validator', function(){
-        it('should recieve value as first argument');
-        it('should recieve default validator as second argument');
-        it('should error if it does not return a boolean');
-        it('should trigger a validation failure if returns false');
-        it('should not trigger a validation failure if returns true');
+
+        it('should receive value as first argument', function(){
+          var validatorStub = sinon.stub().returns(true);
+          var defaults = {
+            test: {
+              validator: validatorStub
+            }
+          };
+          var options = { test: 1 };
+
+          OptionSetter.setOptions({}, defaults, options);
+
+          validatorStub.calledWith(1).should.be.true;
+        });
+
+        it('should receive default validator as second argument',
+          function(){
+            var defaultValidator = function(){ return true; };
+
+            OptionSetter.addType({
+              name: 'testType',
+              default: function(){ return 0;},
+              validator: defaultValidator
+            });
+
+            var defaults = {
+              test: {
+                type: 'testType',
+                validator: sinon.stub().returns(true)
+              }
+            }
+            var options = { test: 1 };
+
+            OptionSetter.setOptions({}, defaults, options);
+
+            defaults.test.validator.args[0][1]
+              .should.equal(defaultValidator);
+          }
+        );
+
+        it('should error if it does not return a boolean', function(){
+          var defaults = {
+            test: {
+              validator: function(){ return 'not a boolean';}
+            }
+          };
+          var options = { test: 1 };
+
+          expect(function(){
+            OptionSetter.setOptions({}, defaults, options);
+          }).to.throw(
+            'OptionSetter.setOptions: test has a validator '+
+            'that returns non-boolean'
+          );
+        });
+
+        it('should trigger a validation failure if returns false', 
+          function(){
+            var defaults = {
+              test: {
+                validator: function(){ return false; }
+              }
+            };
+            var options = { test: 1 };
+
+            expect(function(){
+              OptionSetter.setOptions({}, defaults, options);
+            }).to.throw(
+              'OptionSetter.setOptions: test failed validation'
+            );
+          }
+        );
+
+        it('should not trigger a validation failure if returns true',
+          function(){
+            var defaults = {
+              test: {
+                validator: function(){ return true; }
+              }
+            };
+            var options = { test: 1 };
+            expect(function(){
+              OptionSetter.setOptions({}, defaults, options);
+            }).to.not.throw();
+          }
+        );
       });
 
       describe('failedValidationAction', function(){
