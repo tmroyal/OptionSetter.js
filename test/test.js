@@ -369,10 +369,35 @@ describe('OptionSetter', function(){
       }); 
 
       describe('function', function(){
-        it('should invalidate non funciton');   
-        it('should invalidate regex');   
-        it('should validate function');
-        it('should default to function that returns nothing');
+        var functionType, functionValidator;
+
+        beforeEach(function(){
+          functionType = OptionSetter._types.function;
+          functionValidator = OptionSetter.getValidator('function');
+        });
+
+        it('should invalidate non function', function(){
+          functionValidator({}).should.be.false;
+          functionValidator('').should.be.false;
+        });
+
+        it('should validate function', function(){
+          functionValidator(function(){}).should.be.true;
+          functionValidator(Math.pow).should.be.true;
+        });
+
+        it('should default to function that returns nothing', 
+          function(){
+            var defaultFunction = functionType.default();
+
+            var reg = /\(([\s\S]*?)\)/;
+            var params = reg.exec(defaultFunction)[1].split(',');
+            params.length.should.equal(1);
+            params[0].should.equal('');
+
+            expect(defaultFunction()).to.be.undefined;
+          }
+        );
       }); 
 
       describe('date', function(){

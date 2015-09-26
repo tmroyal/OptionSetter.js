@@ -242,6 +242,17 @@ var OptionSetter = function(){
     validator: _.isString
   });
 
+
+  Setter.addType({
+    name: 'function', 
+    default: function(){
+      return function(){};
+    }, 
+    validator: _.isFunction
+  });
+
+
+
   return Setter;
 }();
 
