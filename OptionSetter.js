@@ -184,16 +184,16 @@ var OptionSetter = function(){
     }
   };
 
-  Setter.getValidator = function(name){
-    verifyString({ input: name, inputName: 'name', 
+  Setter.getValidator = function(typeName){
+    verifyString({ input: typeName, inputName: 'type name', 
       errPrefix: 'OptionSetter.getValidator:'});
 
-    if (!this._types[name]){
+    if (!this._types[typeName]){
       throw new Error(
-          'OptionSetter.getValidator: name '+name+' not found');
+          'OptionSetter.getValidator: type '+typeName+' not found');
     }
 
-    return this._types[name].validator;
+    return this._types[typeName].validator;
   };
 
   // built-in types
@@ -219,11 +219,27 @@ var OptionSetter = function(){
   Setter.addType({
     name: 'object',
     default: function(){
-      return {}
+      return {};
     },
     validator: function(value){
-      return _.isObject(value) && !_.isFunction(value)
+      return _.isObject(value) && !_.isFunction(value);
     }
+  });
+
+  Setter.addType({
+    name: 'array', 
+    default: function(){
+      return [];
+    }, 
+    validator: _.isArray
+  });
+
+  Setter.addType({
+    name: 'string', 
+    default: function(){
+      return '';
+    }, 
+    validator: _.isString
   });
 
   return Setter;

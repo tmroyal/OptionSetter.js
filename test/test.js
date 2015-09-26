@@ -318,20 +318,54 @@ describe('OptionSetter', function(){
 
         it('should default to {}', function(){
           objectType.default().should.deep.equal({});
-
         });
       }); 
 
       describe('array', function(){
-        it('should invalidate non-array'); 
-        it('should validate arrays');
-        it('should default to []');
+        var arrayType, arrayValidator;
+
+        beforeEach(function(){
+          arrayType = OptionSetter._types.array;
+          arrayValidator = OptionSetter.getValidator('array');
+        });
+
+        it('should invalidate non-array', function(){
+          arrayValidator('').should.be.false; 
+          arrayValidator({}).should.be.false; 
+        });
+
+        it('should validate arrays', function(){
+          arrayValidator([]).should.be.true; 
+          arrayValidator([1,2,3]).should.be.true;
+        });
+
+        it('should default to []', function(){
+          arrayType.default().should.deep.equal([]);
+        });
       }); 
 
       describe('string', function(){
-        it('should invalidate non-strings'); 
-        it('should validate string');
-        it('should validate to empty string');
+        var stringType, stringValidator;
+
+        beforeEach(function(){
+          stringType = OptionSetter._types.string;
+          stringValidator = OptionSetter.getValidator('string');
+        });
+
+
+        it('should invalidate non-strings', function(){
+          stringValidator({}).should.be.false;
+          stringValidator(function(){}).should.be.false;
+        }); 
+
+        it('should validate string', function(){
+          stringValidator('').should.be.true;
+          stringValidator('string').should.be.true;
+        });
+
+        it('should validate to empty string', function(){
+          stringType.default().should.equal('');
+        });
       }); 
 
       describe('function', function(){
@@ -513,14 +547,14 @@ describe('OptionSetter', function(){
     it('should error if not given name', function(){
       expect(function(){
         OptionSetter.getValidator();
-      }).to.throw('OptionSetter.getValidator: must provide name');
+      }).to.throw('OptionSetter.getValidator: must provide type name');
     });
 
     it('should error if given non-string', function(){
       expect(function(){
         OptionSetter.getValidator({});
       }).to.throw(
-        'OptionSetter.getValidator: name must be type string'
+        'OptionSetter.getValidator: type name must be type string'
       );
     });
 
@@ -528,7 +562,7 @@ describe('OptionSetter', function(){
       expect(function(){
         OptionSetter.getValidator('non-existant');
       }).to.throw(
-        'OptionSetter.getValidator: name non-existant not found'
+        'OptionSetter.getValidator: type non-existant not found'
       );
     });
   });
