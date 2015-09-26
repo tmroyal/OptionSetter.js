@@ -31,8 +31,10 @@ var OptionSetter = function(){
   // throws Error if not provided valid argument type
   function verifyType(opt){
     opt.errPrefix = opt.errPrefix || 'OptionSetter:';
+
     if (opt.input === undefined){
       throw new Error(opt.errPrefix+ ' must provide '+opt.inputName);
+
     } else if (!opt.verifyCB(opt.input)){
       throw new Error(
         opt.errPrefix+' '+opt.inputName+' must be type '+opt.typeName

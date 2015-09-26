@@ -826,8 +826,27 @@ describe('OptionSetter', function(){
       );
     });
 
-    // TODO - how?
-    it('should error if validator returns non boolean');
+    it('should error if validator returns non boolean', function(){
+      OptionSetter.addType({
+        name: 'defective',
+        validator: function(){ return 'non boolean'; },
+        default: function(){ return 0; }
+      });
+
+      var defaults = {
+        test: {
+          type: 'defective'
+        }
+      };
+      var options = { test: 1 };
+
+      expect(function(){
+        OptionSetter.setOptions({}, defaults, options);
+      }).to.throw(
+        'OptionSetter.setOptions: test has '+
+        'a validator that returns non-boolean'
+      );
+    });
     
     it('should error if given non-string fail message', function(){
       testTypeDef.failMessage = {};
