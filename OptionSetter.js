@@ -104,11 +104,11 @@ var OptionSetter = function(){
       }
 
       defaultValidator = type.validator;
-      failMessage = type.failMessage;
+      failMessage = def.failMessage || type.failMessage;
     } else {
 
       defaultValidator = function(){ return true; }
-      failMessage = 'failed validation';
+      failMessage = def.failMessage || 'failed validation';
     }
 
     // validate with either type validator

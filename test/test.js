@@ -321,8 +321,22 @@ describe('OptionSetter', function(){
       });
 
       describe('failMessage', function(){
-        it('should be used with local failedValidationAction'); 
-        it('should be used with global failedValidationAction'); 
+        it('should be used when validation fails',
+          function(){
+            var defaults = {
+              test: {
+                validator: function(){ return false; },
+                failMessage: 'custom fail message'
+              }
+            };
+            var options = { test: 1 };
+            expect(function(){
+              OptionSetter.setOptions({}, defaults, options);
+            }).to.throw(
+              'OptionSetter.setOptions: test custom fail message'
+            );
+          }
+        ); 
       });
 
       describe('required', function(){
