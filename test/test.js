@@ -2,9 +2,11 @@ var chai = require('chai');
 var expect = chai.expect;
 var should = chai.should();
 var sinon = require('sinon');
+
 var OptionSetter; 
 var root;
 
+// if browser, root = window, if node, global
 try {
   root = window;
 } catch (e) {
@@ -45,7 +47,8 @@ describe('OptionSetter', function(){
     it('should error if options is undefined', function(){
       expect(function(){
         OptionSetter.setOptions({},{});
-      }).to.throw('OptionSetter.setOptions: must provide options object');
+      }).to.throw(
+        'OptionSetter.setOptions: must provide options object');
     });
 
     it('should error if options is not an object', function(){
@@ -59,7 +62,8 @@ describe('OptionSetter', function(){
     it('should error if defaults is undefined', function(){
       expect(function(){
         OptionSetter.setOptions({}, undefined, {});
-      }).to.throw('OptionSetter.setOptions: must provide defaults object');
+      }).to.throw(
+        'OptionSetter.setOptions: must provide defaults object');
     });
 
     it('should error if default is not an object', function(){
@@ -128,8 +132,57 @@ describe('OptionSetter', function(){
 
       // these tests should look more like examples
       describe('type', function(){
-        it('should invalidate inputs of wrong type'); 
-        it('should not invalidate defaults of wrong type'); 
+
+        it('should invalidate inputs of wrong type', function(){
+          var defaults = {
+            test: {
+              type: 'number'
+            }
+          };
+
+          var options = {
+            test: 'not a number'
+          };
+
+          expect(function(){
+            OptionSetter.setOptions({}, defaults, options);
+          }).to.throw(
+            'OptionSetter.setOptions: test must be type number'
+          );
+
+        }); 
+
+        it('should not invalidate defaults of wrong type', function(){
+          var defaults = {
+            test: {
+              type: 'number',
+              default: 'not a number'
+            }
+          };
+
+          expect(function(){
+            OptionSetter.setOptions({}, defaults, {});
+          }).to.not.throw();
+        }); 
+
+        it('should throw if type does not exist', function(){
+          var defaults = {
+            test: {
+              type: 'not a type'
+            }
+          };
+
+          var options = {
+            test: 1
+          };
+
+          expect(function(){
+            OptionSetter.setOptions({}, defaults, options);
+          }).to.throw(
+            'OptionSetter.setOptions: test refers to type '+
+            '"not a type" which has not been defined'
+          );
+        });
       });
 
       describe('validator', function(){
@@ -162,7 +215,7 @@ describe('OptionSetter', function(){
           expect(function(){
             OptionSetter.setOptions({}, defaults, {});
           }).to.throw(
-            'OptionSetter: requiredValue must be provided'
+            'OptionSetter.setOptions: requiredValue must be provided'
           );
         });
 
@@ -178,7 +231,7 @@ describe('OptionSetter', function(){
               expect(function(){
                 OptionSetter.setOptions({}, defaults, {});
               }).to.throw(
-                'OptionSetter: requiredValue must be provided'
+                'OptionSetter.setOptions: requiredValue must be provided'
               );
             }
         ); 

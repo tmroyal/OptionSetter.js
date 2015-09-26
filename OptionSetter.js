@@ -23,7 +23,7 @@ var OptionSetter = function(){
   // the default failed validation action for the library.
   // can be overwritten with OptionSetter.setFailedValidationAction
   var failedValidationAction = function(name, message){
-    throw new Error('OptionSetter: '+name+' '+message);
+    throw new Error('OptionSetter.setOptions: '+name+' '+message);
   };
 
   // these functions are for functions within library, 
@@ -47,14 +47,13 @@ var OptionSetter = function(){
     verifyType(opt);
   }
   
-  // throws error if not provided object
+  // etc.
   function verifyFunction(opt){
     opt.verifyCB = _.isFunction
     opt.typeName = 'function';
     verifyType(opt);
   }
   
-  // throws error if not provided object
   function verifyString(opt){
     opt.verifyCB = _.isString
     opt.typeName = 'string';
@@ -80,6 +79,28 @@ var OptionSetter = function(){
     return setObject;
   }
 
+
+  // returns validated value, or undefined if
+  // value does not validate
+  function validatedValue(value, defaultName, def){
+    var type = Setter._types[def.type];
+    if (type === undefined){
+      failedValidationAction(defaultName, 
+        'refers to type "'+def.type+'" which has not been defined');
+      return 
+    }
+
+    var defaultValidator = type.validator;
+    var valid = defaultValidator(value); 
+
+    if (valid){
+      return value;
+    } else {
+      failedValidationAction(defaultName, type.failMessage);
+      return;
+    }
+  };
+
   // this function does the work of the library.
   // for defaultName, which should occur in defaults, either provide
   // the validated options value associated with defaultName
@@ -98,12 +119,11 @@ var OptionSetter = function(){
       value = options[optionName];
 
       if (value !== undefined && (def.validator || def.type)){
-        // we return undefined value
-        // value = validatedValue(value, def);
-        // return {
-        //  optionName: optionName
-        //
-        // }
+        value = validatedValue(value, defaultName, def);
+        return {
+          optionName: optionName,
+          value: value
+        };
       }
 
       if (value === undefined && def.default) {
