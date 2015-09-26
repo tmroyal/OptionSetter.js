@@ -289,11 +289,37 @@ describe('OptionSetter', function(){
       }); 
 
       describe('object', function(){
-        it('should validate objects');
-        it('should invalidate primitives');
-        it('should invalidate function');
-        it('should invalidate array');
-        it('should default to {}');
+        var objectType, objectValidator;
+
+        beforeEach(function(){
+          objectType = OptionSetter._types['object'];
+          objectValidator = OptionSetter.getValidator('object');
+        });
+
+        it('should validate objects', function(){
+          objectValidator({}).should.be.true;
+        });
+
+        it('should invalidate non-object primitives', function(){
+          objectValidator(undefined).should.be.false;
+          objectValidator(null).should.be.false;
+          objectValidator('').should.be.false;
+          objectValidator(1).should.be.false;
+          objectValidator(false).should.be.false;
+        });
+
+        it('should invalidate function', function(){
+          objectValidator(function(){}).should.be.false;
+        });
+
+        it('should invalidate array', function(){
+          objectValidator([]).should.be.true;
+        });
+
+        it('should default to {}', function(){
+          objectType.default().should.deep.equal({});
+
+        });
       }); 
 
       describe('array', function(){

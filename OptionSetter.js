@@ -216,6 +216,16 @@ var OptionSetter = function(){
     }
   });
 
+  Setter.addType({
+    name: 'object',
+    default: function(){
+      return {}
+    },
+    validator: function(value){
+      return _.isObject(value) && !_.isFunction(value)
+    }
+  });
+
   return Setter;
 }();
 
