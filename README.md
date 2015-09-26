@@ -474,14 +474,6 @@ OptionSetter.addType(
 
 This is the same as `OptionSetter.addType`, except it takes an array of *type definitions*.
 
-### OptionSetter.setDefault(name, defaultFunction)
-
-This overwrites the default value generator for the type specified by `name`.
-
-### OptionSetter.setValidator(name, validatorFunction)
-
-This overwrites the default validator for the type specified by `name`.
-
 ### OptionSetter.getValidator(name)
 
 Return the default validator associated with the `name`. Useful for combining validators within custom validators.
@@ -504,8 +496,10 @@ a function that sets up alternative behaviors.
 The function is provided with the following parameters:
 - `name` - the name of the property that fails validation or is omitted
 - `message` - the 'error' message provided by the type definition or paramter
+- `setObject` - the setObject, the first argument of `OptionSetter.setOptions`. 
+- `itemOmitted` (boolean) - whether or not this is a validation error
+(false) or an error generated from an item being omitted (true).
 
-Note: this function also is called when an item is ommited. 
 
 Example:
 ```
