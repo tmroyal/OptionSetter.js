@@ -917,20 +917,6 @@ describe('OptionSetter', function(){
     });
   });
 
-  describe('.setValidator', function(){
-    it('should overwrite validator for specified type'); 
-    it('should error if given non-string name');
-    it('should error if validatorFunction is not a function');
-  });
-
-  describe('.setDefault', function(){
-    it('should overwrite default generator for specified type'); 
-    it('should error if given non-string name');
-    it('should error if not given a name');
-    it('should error if defaultFunction is not a function');
-    it('should error if defaultFunction is not given');
-  });
-
   describe('.getValidator', function(){
 
     it('should return validator for specified type', function(){
@@ -969,10 +955,38 @@ describe('OptionSetter', function(){
   });
 
   describe('.setFailedValidationAction', function(){
-    it('should error if given non-function');
-    // test by conditioning fail, and spy
-    it('should set failedValidationAction');
-    it('should be called with name of object');
-    it('should be called with error message of object');
+    it('should error if given non-function', function(){
+      expect(function(){
+        OptionSetter.setFailedValidationAction(0);
+      }).to.throw(
+        'OptionSetter.setFailedValidationAction: '+
+        'validation action must be type function'
+      );
+    });
+
+    it('should error if given nothing', function(){
+      expect(function(){
+        OptionSetter.setFailedValidationAction();
+      }).to.throw(
+        'OptionSetter.setFailedValidationAction: '+
+        'must provide validation action'
+      );
+    });
+
+    it('should set failedValidationAction', function(){
+      var newAction = sinon.spy();
+      OptionSetter.setFailedValidationAction(newAction);
+      var defaults = {
+        test: {
+          type: 'string'
+        }
+      };
+      var options = { test: 1 };
+      OptionSetter.setOptions({}, defaults, options);
+      newAction.args[0].should.deep.equal([
+        'test', 'must be type string', {}, false
+      ]);
+    });
+
   });
 });

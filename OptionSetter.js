@@ -25,6 +25,15 @@ var OptionSetter = function(){
     throw new Error('OptionSetter.setOptions: '+name+' '+message);
   };
 
+  Setter.setFailedValidationAction = function(newAction){
+    verifyFunction({
+      input: newAction, inputName: 'validation action', 
+      errPrefix: 'OptionSetter.setFailedValidationAction:'
+    });
+
+    failedValidationAction = newAction;
+  };
+
   // these functions are for util functions in the library.
   // they do not provide the validations that the end user
   // uses, but are only used internally.
