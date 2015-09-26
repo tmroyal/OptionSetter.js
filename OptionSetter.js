@@ -15,10 +15,9 @@ var OptionSetter = function(){
     version: '0.1.0' 
   };
 
-  // an empty object, used to create a unique reference,
-  // which will be used to identify automatic defaults
-  // using OptionSetter.default()
-  var os_default = {};
+  var setter_default = {};
+
+  Setter.default = function(){ return setter_default; }
 
   // the default failed validation action for the library.
   // can be overwritten with OptionSetter.setFailedValidationAction

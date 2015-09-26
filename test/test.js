@@ -656,8 +656,9 @@ describe('OptionSetter', function(){
   });
 
   describe('.default()', function(){
-    // how to test? should I?
-    it('should return a reference to default flag object'); 
+    it('should return same reference each time', function(){
+      OptionSetter.default().should.equal(OptionSetter.default());
+    }); 
   });
 
   describe('.addType', function(){
