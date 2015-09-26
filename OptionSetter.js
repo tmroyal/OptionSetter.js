@@ -251,7 +251,13 @@ var OptionSetter = function(){
     validator: _.isFunction
   });
 
-
+  Setter.addType({
+    name: 'date', 
+    default: function(){
+      return new Date();
+    }, 
+    validator: _.isDate
+  });
 
   return Setter;
 }();

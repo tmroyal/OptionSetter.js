@@ -401,9 +401,31 @@ describe('OptionSetter', function(){
       }); 
 
       describe('date', function(){
-        it('should invalidate non dates');
-        it('should validate dates');
-        it('should default to new Date()');
+        var dateType, dateValidator;
+
+        beforeEach(function(){
+          dateType = OptionSetter._types.date;
+          dateValidator = OptionSetter.getValidator('date');
+        });
+
+        it('should invalidate non dates', function(){
+          dateValidator('01/01/2013').should.be.false;
+          dateValidator({}).should.be.false;
+        });
+
+        it('should validate dates', function(){
+          dateValidator(new Date(1,2)).should.be.true;
+        });
+
+        it('should default to new Date()', function(){
+          var oldDate = Date;
+          Date = function(){ this.called = true; }
+
+          console.log(dateType.default());
+          dateType.default().called.should.be.true;
+
+          Date = oldDate;
+        });
       }); 
     });
   });
