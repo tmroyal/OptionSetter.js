@@ -173,8 +173,21 @@ var OptionSetter = function(){
         };
       }
 
-      if (value === undefined && def.default) {
-        value = def.default;
+      if (value === undefined && def.default !== undefined) {
+        if (def.default === setter_default){
+          var type = Setter._types[def.type];
+          if (type === undefined){
+            failCB(
+              defaultName,
+              'uses OptionSetter.default() without an existing type',
+              setObj,
+              false
+            );
+          }
+          value = type.default();
+        } else {
+          value = def.default;
+        }
       }
 
       if (value === undefined && def.required !== false){
@@ -213,7 +226,7 @@ var OptionSetter = function(){
       if (defaults.hasOwnProperty(def)){
         var reconciledDef = 
           reconcileDefault(def, defaults, options, setObject);
-        if (reconciledDef.value){
+        if (reconciledDef.value !== undefined){
           setObject[def] = reconciledDef.value;
         }
         usedOptions[reconciledDef.optionName] = true;

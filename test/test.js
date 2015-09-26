@@ -24,7 +24,8 @@ describe('OptionSetter', function(){
   });
   
   it('should throw error if _ is not defined in browser');
-  it('should require _ if not defined');
+  it('should require lodash if _ not defined');
+  it('should error is lodash not returned');
 
   describe('.setOptions', function(){
 
@@ -444,8 +445,81 @@ describe('OptionSetter', function(){
           setObject.testProp.should.equal('default');
         });
 
-        it('should not cause invalidation');
-        it('should use type default if OptionSetter.default is provided');
+        it('should bypass type invalidation', function(){
+          var defaults = {
+            test: {
+              type: 'number',
+              default: 'not a number'
+            }
+          };
+
+          expect(function(){
+            OptionSetter.setOptions({}, defaults, {});
+          }).to.not.throw();
+
+        });
+
+        it('should bypass custom invalidation', function(){
+          var defaults = {
+            test: {
+              default: 'infallible',
+              validator: function(){ return false; }
+            }
+          };
+
+          expect(function(){
+            OptionSetter.setOptions({}, defaults, {});
+          }).to.not.throw();
+
+        });
+
+        it('should use type default if OptionSetter.default'+
+            ' is provided', 
+            function(){
+              var defaults = {
+                test: {
+                  type: 'number',
+                  default: OptionSetter.default()
+                }
+              };
+
+              var setObject = OptionSetter.setOptions({}, defaults, {});
+              setObject.test.should.equal(0);
+            }
+        );
+
+        it('OptionSetter.default should throw if no type', 
+            function(){
+              var defaults = {
+                test: {
+                  default: OptionSetter.default()
+                }
+              };
+              expect(function(){
+                OptionSetter.setOptions({}, defaults, {});
+              }).to.throw(
+                'OptionSetter.setOptions: test uses '+
+                'OptionSetter.default() without an existing type'
+              );
+            }
+        );
+
+        it('should set as undefined if type does not exist',
+          function(){
+              var defaults = {
+                test: {
+                  type: 'does not exist',
+                  default: OptionSetter.default()
+                }
+              };
+              expect(function(){
+                OptionSetter.setOptions({}, defaults, {});
+              }).to.throw(
+                'OptionSetter.setOptions: test uses '+
+                'OptionSetter.default() without an existing type'
+              );
+          }
+        )
       });
     });
 
