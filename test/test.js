@@ -572,7 +572,40 @@ describe('OptionSetter', function(){
   });
 
   describe('.addTypes', function(){
-    it('should call addType with each item in array');
+    it('should call addType with each item in array', function(){
+      var addType = sinon.spy(OptionSetter, 'addType');
+      var type1 = {
+        name: 'type1',
+        default: function(){ return ''; },
+        validator: function(){ return true; }
+      };
+      var type2 = {
+        name: 'type2',
+        default: function(){ return ''; },
+        validator: function(){ return true; }
+      };
+
+      OptionSetter.addTypes([type1, type2]);
+      
+      addType.calledWith(type1).should.be.true;
+      addType.calledWith(type2).should.be.true;
+    });
+
+    it('should error if not given an array', function(){
+      expect(function(){
+        OptionSetter.addTypes('non-array');
+      }).to.throw(
+        'OptionSetter.addTypes: type definitions must be type array'
+      );
+    });
+
+    it('should error if given no argument', function(){
+      expect(function(){
+        OptionSetter.addTypes();
+      }).to.throw(
+        'OptionSetter.addTypes: must provide type definitions'
+      );
+    });
   });
 
   describe('.setValidator', function(){

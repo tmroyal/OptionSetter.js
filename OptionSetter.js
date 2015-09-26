@@ -61,6 +61,12 @@ var OptionSetter = function(){
     verifyType(opt);
   }
 
+  function verifyArray(opt){
+    opt.verifyCB = _.isArray
+    opt.typeName = 'array';
+    verifyType(opt);
+  }
+
   // add all options not metioned in usedOptions to setObject
   // and return setObject
   function applyUnusedOptions(setObject, options, usedOptions){
@@ -194,6 +200,16 @@ var OptionSetter = function(){
     }
 
     return this._types[typeName].validator;
+  };
+
+  Setter.addTypes = function(typeDefs){
+    verifyArray({
+      input: typeDefs, inputName: 'type definitions',
+      errPrefix: 'OptionSetter.addTypes:'
+    });
+    for (var i = 0; i < typeDefs.length; i++){
+     this.addType(typeDefs[i]);
+    }
   };
 
   // built-in types
