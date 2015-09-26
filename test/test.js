@@ -398,8 +398,36 @@ describe('OptionSetter', function(){
       });
 
       describe('sourceName', function(){
-        it('should point to name in object'); 
-        it('should error if not a string');
+        it('should point to name in object', function(){
+          var defaults = {
+            test: {
+              sourceName: 'name'
+            }
+          };
+          var options = {
+            name: {}
+          };
+          var setObj = OptionSetter.setOptions({}, defaults, options);
+          
+          setObj.test.should.equal(options.name);
+          
+        });
+
+        it('should error if not a string', function(){
+          var defaults = {
+            test: { sourceName: 0 }
+          };
+          var options = { test: 1 };
+
+          expect(function(){
+            OptionSetter.setOptions({}, defaults, options);
+          }).to.throw(
+            'OptionSetter.setOptions: test has '+
+            'a non-string sourceName'
+          );
+
+        });
+
       });
 
       describe('default', function(){

@@ -150,7 +150,18 @@ var OptionSetter = function(){
     var failCB = def.failedValidationAction || failedValidationAction;
 
     if ( _.isObject(def) ){
-      optionName = def.sourceName || defaultName;
+      optionName = def.sourceName !== undefined ?  
+                      def.sourceName : defaultName;
+
+      if (!_.isString(optionName)){
+        failCB(
+          defaultName,
+          'has a non-string sourceName',
+          setObj, 
+          false
+        );
+        return { optionName: optionName };
+      }
 
       value = options[optionName];
 
@@ -168,7 +179,7 @@ var OptionSetter = function(){
       }
 
       if (value === undefined && def.required !== false){
-        failCB(optionName, 'must be provided', setObj, true);
+        failCB(defaultName, 'must be provided', setObj, true);
       }
     } else {
       optionName = defaultName;
