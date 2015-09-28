@@ -1,4 +1,5 @@
-# OptionSetter.js
+# OptionSetter.js [![Build Status](https://travis-ci.org/tmroyal/OptionSetter.js.svg?branch=master)](https://travis-ci.org/tmroyal/OptionSetter.js)
+
 A Javascript library designed to simply the consumption of options objects. It's like `.extend` (Underscore/JQuery) on steroids.
 
 ## Motivation
