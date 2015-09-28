@@ -1,13 +1,11 @@
-var chai = require('chai');
-var expect = chai.expect;
-var should = chai.should();
-var sinon = require('sinon');
+expect = chai.expect;
+should = chai.should();
 
-var OptionSetter;
-var OptionSetterLib = require('../OptionSetter.js');; 
+var optionSetter;
 var root;
 
 // if browser, root = window, if node, root = global
+// for stubs
 try {
   root = window;
 } catch (e) {
@@ -15,19 +13,19 @@ try {
 }
 
 beforeEach(function(){
-  OptionSetter = new OptionSetterLib();
+  optionSetter = new OptionSetter();
 });
 
 
 describe('OptionSetter', function(){
 
   it('should have version', function(){
-    OptionSetter.version.should.equal('0.1.0');
+    optionSetter.version.should.equal('0.1.0');
   });
 
   describe('integration test', function(){
     it('should pass', function(){
-      OptionSetter.addType({
+      optionSetter.addType({
         name: 'apple', 
         default: function(){ return 'apple' },
         validator: function(value){ 
@@ -36,7 +34,7 @@ describe('OptionSetter', function(){
       });
 
       var defaults = {
-        param1: { type: 'date', default: OptionSetter.default() },
+        param1: { type: 'date', default: optionSetter.default() },
         param2: { type: 'string', default: 'param2' },
         param3: { type: 'array' },
         param4: 'param4', 
@@ -57,7 +55,7 @@ describe('OptionSetter', function(){
         param8: 'apple'
       };
 
-      var setOptions = OptionSetter.setOptions({}, defaults, options);
+      var setOptions = optionSetter.setOptions({}, defaults, options);
       
     });
       
@@ -69,7 +67,7 @@ describe('OptionSetter', function(){
 
     it('should return setObject', function(){
       var setObject = {};
-      var returnValue = OptionSetter.setOptions(setObject,{},{});
+      var returnValue = optionSetter.setOptions(setObject,{},{});
 
       returnValue.should.equal(setObject);
     });
@@ -77,7 +75,7 @@ describe('OptionSetter', function(){
     it('should add properties to setObject', function(){
       var setObject = {};
       var options = { test: 'test'};
-      var returnValue = OptionSetter.setOptions(setObject,{},options);
+      var returnValue = optionSetter.setOptions(setObject,{},options);
 
       setObject.test.should.equal('test');
 
@@ -85,14 +83,14 @@ describe('OptionSetter', function(){
 
     it('should error if options is undefined', function(){
       expect(function(){
-        OptionSetter.setOptions({},{});
+        optionSetter.setOptions({},{});
       }).to.throw(
         'OptionSetter.setOptions: must provide options object');
     });
 
     it('should error if options is not an object', function(){
       expect(function(){
-        OptionSetter.setOptions({},{},'object');
+        optionSetter.setOptions({},{},'object');
       }).to.throw(
         'OptionSetter.setOptions: options object must be type object'
       );
@@ -100,14 +98,14 @@ describe('OptionSetter', function(){
 
     it('should error if defaults is undefined', function(){
       expect(function(){
-        OptionSetter.setOptions({}, undefined, {});
+        optionSetter.setOptions({}, undefined, {});
       }).to.throw(
         'OptionSetter.setOptions: must provide defaults object');
     });
 
     it('should error if default is not an object', function(){
       expect(function(){
-        OptionSetter.setOptions({},'object', {});
+        optionSetter.setOptions({},'object', {});
       }).to.throw(
         'OptionSetter.setOptions: defaults object must be type object'
       );
@@ -115,13 +113,13 @@ describe('OptionSetter', function(){
 
     it('should error if setObject is undefined', function(){
       expect(function(){
-        OptionSetter.setOptions(undefined, {}, {});
+        optionSetter.setOptions(undefined, {}, {});
       }).to.throw('OptionSetter.setOptions: must provide setObject');
     });
 
     it('should error is setObject is not an object', function(){
       expect(function(){
-        OptionSetter.setOptions('obect', {}, {});
+        optionSetter.setOptions('obect', {}, {});
       }).to.throw(
         'OptionSetter.setOptions: setObject must be type object'
       );
@@ -131,7 +129,7 @@ describe('OptionSetter', function(){
       it('should copy properties not in defaultsObject to setObject',
         function(){
           var setObject = {};
-          OptionSetter.setOptions( setObject, {}, { optProp: 'prop'});
+          optionSetter.setOptions( setObject, {}, { optProp: 'prop'});
           setObject.optProp.should.equal('prop');
         }
       );
@@ -146,7 +144,7 @@ describe('OptionSetter', function(){
           var options = {};
           var setObject = {};
 
-          OptionSetter.setOptions( setObject, defaults, options);
+          optionSetter.setOptions( setObject, defaults, options);
 
           setObject.testValue.should.equal('testValue');
         }
@@ -162,7 +160,7 @@ describe('OptionSetter', function(){
           };
           var setObject = {};
 
-          OptionSetter.setOptions( setObject, defaults, options);
+          optionSetter.setOptions( setObject, defaults, options);
 
           setObject.testValue.should.equal('provided value');
 
@@ -183,7 +181,7 @@ describe('OptionSetter', function(){
           };
 
           expect(function(){
-            OptionSetter.setOptions({}, defaults, options);
+            optionSetter.setOptions({}, defaults, options);
           }).to.throw(
             'OptionSetter.setOptions: test must be type number'
           );
@@ -199,7 +197,7 @@ describe('OptionSetter', function(){
           };
 
           expect(function(){
-            OptionSetter.setOptions({}, defaults, {});
+            optionSetter.setOptions({}, defaults, {});
           }).to.not.throw();
         }); 
 
@@ -215,7 +213,7 @@ describe('OptionSetter', function(){
           };
 
           expect(function(){
-            OptionSetter.setOptions({}, defaults, options);
+            optionSetter.setOptions({}, defaults, options);
           }).to.throw(
             'OptionSetter.setOptions: test refers to type '+
             '"not a type" which has not been defined'
@@ -234,7 +232,7 @@ describe('OptionSetter', function(){
           };
           var options = { test: 1 };
 
-          OptionSetter.setOptions({}, defaults, options);
+          optionSetter.setOptions({}, defaults, options);
 
           validatorStub.calledWith(1).should.be.true;
         });
@@ -243,7 +241,7 @@ describe('OptionSetter', function(){
           function(){
             var defaultValidator = function(){ return true; };
 
-            OptionSetter.addType({
+            optionSetter.addType({
               name: 'testType',
               default: function(){ return 0;},
               validator: defaultValidator
@@ -257,7 +255,7 @@ describe('OptionSetter', function(){
             }
             var options = { test: 1 };
 
-            OptionSetter.setOptions({}, defaults, options);
+            optionSetter.setOptions({}, defaults, options);
 
             defaults.test.validator.args[0][1]
               .should.equal(defaultValidator);
@@ -273,7 +271,7 @@ describe('OptionSetter', function(){
           var options = { test: 1 };
 
           expect(function(){
-            OptionSetter.setOptions({}, defaults, options);
+            optionSetter.setOptions({}, defaults, options);
           }).to.throw(
             'OptionSetter.setOptions: test has a validator '+
             'that returns non-boolean'
@@ -290,7 +288,7 @@ describe('OptionSetter', function(){
             var options = { test: 1 };
 
             expect(function(){
-              OptionSetter.setOptions({}, defaults, options);
+              optionSetter.setOptions({}, defaults, options);
             }).to.throw(
               'OptionSetter.setOptions: test failed validation'
             );
@@ -306,7 +304,7 @@ describe('OptionSetter', function(){
             };
             var options = { test: 1 };
             expect(function(){
-              OptionSetter.setOptions({}, defaults, options);
+              optionSetter.setOptions({}, defaults, options);
             }).to.not.throw();
           }
         );
@@ -323,7 +321,7 @@ describe('OptionSetter', function(){
           };
           var options = { test: 1 };
           
-          OptionSetter.setOptions({}, defaults, options);
+          optionSetter.setOptions({}, defaults, options);
         }); 
 
         it('should be called with name, message, setObject and ommission error',
@@ -337,7 +335,7 @@ describe('OptionSetter', function(){
             };
             var options = { test: 1 };
 
-            OptionSetter.setOptions(setObject, defaults, options);
+            optionSetter.setOptions(setObject, defaults, options);
             
             defaults.test.failedValidationAction.args[0]
               .should.deep.equal(
@@ -353,7 +351,7 @@ describe('OptionSetter', function(){
                  failedValidationAction: sinon.spy()
                }
              }
-             OptionSetter.setOptions({},defaults, {}); 
+             optionSetter.setOptions({},defaults, {}); 
              defaults.test.failedValidationAction
                 .args[0][3].should.be.true;
            });
@@ -370,7 +368,7 @@ describe('OptionSetter', function(){
             };
             var options = { test: 1 };
             expect(function(){
-              OptionSetter.setOptions({}, defaults, options);
+              optionSetter.setOptions({}, defaults, options);
             }).to.throw(
               'OptionSetter.setOptions: test custom fail message'
             );
@@ -386,7 +384,7 @@ describe('OptionSetter', function(){
           };
 
           expect(function(){
-            OptionSetter.setOptions({}, defaults, {});
+            optionSetter.setOptions({}, defaults, {});
           }).to.throw(
             'OptionSetter.setOptions: requiredValue must be provided'
           );
@@ -402,7 +400,7 @@ describe('OptionSetter', function(){
               }
 
               expect(function(){
-                OptionSetter.setOptions({}, defaults, {});
+                optionSetter.setOptions({}, defaults, {});
               }).to.throw(
                 'OptionSetter.setOptions: requiredValue must be provided'
               );
@@ -418,7 +416,7 @@ describe('OptionSetter', function(){
           };
 
           expect(function(){
-            OptionSetter.setOptions({}, defaults, {});
+            optionSetter.setOptions({}, defaults, {});
           }).to.not.throw();
         });
 
@@ -430,7 +428,7 @@ describe('OptionSetter', function(){
           }
 
           expect(function(){
-            OptionSetter.setOptions({}, defaults, {});
+            optionSetter.setOptions({}, defaults, {});
           }).to.not.throw();
         });
 
@@ -446,7 +444,7 @@ describe('OptionSetter', function(){
           var options = {
             name: {}
           };
-          var setObj = OptionSetter.setOptions({}, defaults, options);
+          var setObj = optionSetter.setOptions({}, defaults, options);
           
           setObj.test.should.equal(options.name);
           
@@ -459,7 +457,7 @@ describe('OptionSetter', function(){
           var options = { test: 1 };
 
           expect(function(){
-            OptionSetter.setOptions({}, defaults, options);
+            optionSetter.setOptions({}, defaults, options);
           }).to.throw(
             'OptionSetter.setOptions: test has '+
             'a non-string sourceName'
@@ -478,7 +476,7 @@ describe('OptionSetter', function(){
             }
           };
 
-          OptionSetter.setOptions(setObject, defaults, {});
+          optionSetter.setOptions(setObject, defaults, {});
 
           setObject.testProp.should.equal('default');
         });
@@ -492,7 +490,7 @@ describe('OptionSetter', function(){
           };
 
           expect(function(){
-            OptionSetter.setOptions({}, defaults, {});
+            optionSetter.setOptions({}, defaults, {});
           }).to.not.throw();
 
         });
@@ -506,22 +504,22 @@ describe('OptionSetter', function(){
           };
 
           expect(function(){
-            OptionSetter.setOptions({}, defaults, {});
+            optionSetter.setOptions({}, defaults, {});
           }).to.not.throw();
 
         });
 
-        it('should use type default if OptionSetter.default'+
+        it('should use type default if optionSetter.default'+
             ' is provided', 
             function(){
               var defaults = {
                 test: {
                   type: 'number',
-                  default: OptionSetter.default()
+                  default: optionSetter.default()
                 }
               };
 
-              var setObject = OptionSetter.setOptions({}, defaults, {});
+              var setObject = optionSetter.setOptions({}, defaults, {});
               setObject.test.should.equal(0);
             }
         );
@@ -530,11 +528,11 @@ describe('OptionSetter', function(){
             function(){
               var defaults = {
                 test: {
-                  default: OptionSetter.default()
+                  default: optionSetter.default()
                 }
               };
               expect(function(){
-                OptionSetter.setOptions({}, defaults, {});
+                optionSetter.setOptions({}, defaults, {});
               }).to.throw(
                 'OptionSetter.setOptions: test uses '+
                 'OptionSetter.default() without an existing type'
@@ -547,11 +545,11 @@ describe('OptionSetter', function(){
               var defaults = {
                 test: {
                   type: 'does not exist',
-                  default: OptionSetter.default()
+                  default: optionSetter.default()
                 }
               };
               expect(function(){
-                OptionSetter.setOptions({}, defaults, {});
+                optionSetter.setOptions({}, defaults, {});
               }).to.throw(
                 'OptionSetter.setOptions: test uses '+
                 'OptionSetter.default() without an existing type'
@@ -569,8 +567,8 @@ describe('OptionSetter', function(){
         var booleanValidator, booleanType;
 
         beforeEach(function(){
-          booleanValidator = OptionSetter.getValidator('boolean');
-          booleanType = OptionSetter._types.boolean;
+          booleanValidator = optionSetter.getValidator('boolean');
+          booleanType = optionSetter._types.boolean;
         });
 
         it('should create boolean type', function(){
@@ -596,8 +594,8 @@ describe('OptionSetter', function(){
         var numberType, numberValidator;
 
         beforeEach(function(){
-          numberType = OptionSetter._types.number;
-          numberValidator = OptionSetter.getValidator('number');
+          numberType = optionSetter._types.number;
+          numberValidator = optionSetter.getValidator('number');
         });
 
         it('should invalidate non number', function(){
@@ -627,8 +625,8 @@ describe('OptionSetter', function(){
         var objectType, objectValidator;
 
         beforeEach(function(){
-          objectType = OptionSetter._types['object'];
-          objectValidator = OptionSetter.getValidator('object');
+          objectType = optionSetter._types['object'];
+          objectValidator = optionSetter.getValidator('object');
         });
 
         it('should validate objects', function(){
@@ -660,8 +658,8 @@ describe('OptionSetter', function(){
         var arrayType, arrayValidator;
 
         beforeEach(function(){
-          arrayType = OptionSetter._types.array;
-          arrayValidator = OptionSetter.getValidator('array');
+          arrayType = optionSetter._types.array;
+          arrayValidator = optionSetter.getValidator('array');
         });
 
         it('should invalidate non-array', function(){
@@ -683,8 +681,8 @@ describe('OptionSetter', function(){
         var stringType, stringValidator;
 
         beforeEach(function(){
-          stringType = OptionSetter._types.string;
-          stringValidator = OptionSetter.getValidator('string');
+          stringType = optionSetter._types.string;
+          stringValidator = optionSetter.getValidator('string');
         });
 
 
@@ -707,8 +705,8 @@ describe('OptionSetter', function(){
         var functionType, functionValidator;
 
         beforeEach(function(){
-          functionType = OptionSetter._types.function;
-          functionValidator = OptionSetter.getValidator('function');
+          functionType = optionSetter._types.function;
+          functionValidator = optionSetter.getValidator('function');
         });
 
         it('should invalidate non function', function(){
@@ -739,8 +737,8 @@ describe('OptionSetter', function(){
         var dateType, dateValidator;
 
         beforeEach(function(){
-          dateType = OptionSetter._types.date;
-          dateValidator = OptionSetter.getValidator('date');
+          dateType = optionSetter._types.date;
+          dateValidator = optionSetter.getValidator('date');
         });
 
         it('should invalidate non dates', function(){
@@ -769,7 +767,7 @@ describe('OptionSetter', function(){
 
   describe('.default()', function(){
     it('should return same reference each time', function(){
-      OptionSetter.default().should.equal(OptionSetter.default());
+      optionSetter.default().should.equal(optionSetter.default());
     }); 
   });
 
@@ -787,20 +785,20 @@ describe('OptionSetter', function(){
 
     afterEach(function(){
       // meh
-      delete OptionSetter._types['testType'];
+      delete optionSetter._types['testType'];
     });
 
     it('should error if given no object', function(){
       expect(function(){
-        OptionSetter.addType();
+        optionSetter.addType();
       }).to.throw(
         'OptionSetter.addType: must provide type definition'
       );
     });
 
     it('should create type at name', function(){
-      OptionSetter.addType(testTypeDef);
-      OptionSetter._types['testType'].should.equal(testTypeDef);
+      optionSetter.addType(testTypeDef);
+      optionSetter._types['testType'].should.equal(testTypeDef);
     });
 
 
@@ -808,7 +806,7 @@ describe('OptionSetter', function(){
       delete testTypeDef.name;
 
       expect(function(){
-        OptionSetter.addType(testTypeDef);
+        optionSetter.addType(testTypeDef);
       }).to.throw(
         'OptionSetter.addType: must provide name'
       );
@@ -817,7 +815,7 @@ describe('OptionSetter', function(){
     it('should error if given a non-string name', function(){
       testTypeDef.name = [];
       expect(function(){
-        OptionSetter.addType(testTypeDef);
+        optionSetter.addType(testTypeDef);
       }).to.throw(
         'OptionSetter.addType: name must be type string'
       );
@@ -827,7 +825,7 @@ describe('OptionSetter', function(){
       delete testTypeDef.default;
 
       expect(function(){
-        OptionSetter.addType(testTypeDef);
+        optionSetter.addType(testTypeDef);
       }).to.throw(
         'OptionSetter.addType: must provide default'
       );
@@ -837,7 +835,7 @@ describe('OptionSetter', function(){
       testTypeDef.default = '';
 
       expect(function(){
-        OptionSetter.addType(testTypeDef);
+        optionSetter.addType(testTypeDef);
       }).to.throw(
         'OptionSetter.addType: default must be type function'
       );
@@ -848,7 +846,7 @@ describe('OptionSetter', function(){
       delete testTypeDef.validator;
 
       expect(function(){
-        OptionSetter.addType(testTypeDef);
+        optionSetter.addType(testTypeDef);
       }).to.throw(
         'OptionSetter.addType: must provide validator'
       );
@@ -858,14 +856,14 @@ describe('OptionSetter', function(){
       testTypeDef.validator = '';
 
       expect(function(){
-        OptionSetter.addType(testTypeDef);
+        optionSetter.addType(testTypeDef);
       }).to.throw(
         'OptionSetter.addType: validator must be type function'
       );
     });
 
     it('should error if validator returns non boolean', function(){
-      OptionSetter.addType({
+      optionSetter.addType({
         name: 'defective',
         validator: function(){ return 'non boolean'; },
         default: function(){ return 0; }
@@ -879,7 +877,7 @@ describe('OptionSetter', function(){
       var options = { test: 1 };
 
       expect(function(){
-        OptionSetter.setOptions({}, defaults, options);
+        optionSetter.setOptions({}, defaults, options);
       }).to.throw(
         'OptionSetter.setOptions: test has '+
         'a validator that returns non-boolean'
@@ -890,7 +888,7 @@ describe('OptionSetter', function(){
       testTypeDef.failMessage = {};
 
       expect(function(){
-        OptionSetter.addType(testTypeDef);
+        optionSetter.addType(testTypeDef);
       }).to.throw(
         'OptionSetter.addType: fail message must be type string'
       );
@@ -899,18 +897,18 @@ describe('OptionSetter', function(){
     it('should set failMessage to "must be type [name]" if not given',
       function(){
         delete testTypeDef.failMessage;
-        OptionSetter.addType(testTypeDef);
-        OptionSetter._types.testType.failMessage
+        optionSetter.addType(testTypeDef);
+        optionSetter._types.testType.failMessage
           .should.equal('must be type testType');
       }
     );
 
     it('should error if instructed to overwrite existing type', 
       function(){
-        OptionSetter.addType(testTypeDef);
+        optionSetter.addType(testTypeDef);
 
         expect(function(){
-          OptionSetter.addType(testTypeDef);
+          optionSetter.addType(testTypeDef);
         }).to.throw(
           'OptionSetter.addType: cannot overwrite type testType'
         );
@@ -920,7 +918,7 @@ describe('OptionSetter', function(){
 
   describe('.addTypes', function(){
     it('should call addType with each item in array', function(){
-      var addType = sinon.spy(OptionSetter, 'addType');
+      var addType = sinon.spy(optionSetter, 'addType');
       var type1 = {
         name: 'type1',
         default: function(){ return ''; },
@@ -932,7 +930,7 @@ describe('OptionSetter', function(){
         validator: function(){ return true; }
       };
 
-      OptionSetter.addTypes([type1, type2]);
+      optionSetter.addTypes([type1, type2]);
       
       addType.calledWith(type1).should.be.true;
       addType.calledWith(type2).should.be.true;
@@ -940,7 +938,7 @@ describe('OptionSetter', function(){
 
     it('should error if not given an array', function(){
       expect(function(){
-        OptionSetter.addTypes('non-array');
+        optionSetter.addTypes('non-array');
       }).to.throw(
         'OptionSetter.addTypes: type definitions must be type array'
       );
@@ -948,7 +946,7 @@ describe('OptionSetter', function(){
 
     it('should error if given no argument', function(){
       expect(function(){
-        OptionSetter.addTypes();
+        optionSetter.addTypes();
       }).to.throw(
         'OptionSetter.addTypes: must provide type definitions'
       );
@@ -964,20 +962,20 @@ describe('OptionSetter', function(){
         default: function(){ return ''; },
         validator: validator
       }
-      OptionSetter.addType(typeDef);
+      optionSetter.addType(typeDef);
 
-      OptionSetter.getValidator('testType').should.equal(validator);
+      optionSetter.getValidator('testType').should.equal(validator);
     });
 
     it('should error if not given name', function(){
       expect(function(){
-        OptionSetter.getValidator();
+        optionSetter.getValidator();
       }).to.throw('OptionSetter.getValidator: must provide type name');
     });
 
     it('should error if given non-string', function(){
       expect(function(){
-        OptionSetter.getValidator({});
+        optionSetter.getValidator({});
       }).to.throw(
         'OptionSetter.getValidator: type name must be type string'
       );
@@ -985,7 +983,7 @@ describe('OptionSetter', function(){
 
     it('should error if type not found', function(){
       expect(function(){
-        OptionSetter.getValidator('non-existant');
+        optionSetter.getValidator('non-existant');
       }).to.throw(
         'OptionSetter.getValidator: type non-existant not found'
       );
@@ -995,7 +993,7 @@ describe('OptionSetter', function(){
   describe('.setFailedValidationAction', function(){
     it('should error if given non-function', function(){
       expect(function(){
-        OptionSetter.setFailedValidationAction(0);
+        optionSetter.setFailedValidationAction(0);
       }).to.throw(
         'OptionSetter.setFailedValidationAction: '+
         'validation action must be type function'
@@ -1004,7 +1002,7 @@ describe('OptionSetter', function(){
 
     it('should error if given nothing', function(){
       expect(function(){
-        OptionSetter.setFailedValidationAction();
+        optionSetter.setFailedValidationAction();
       }).to.throw(
         'OptionSetter.setFailedValidationAction: '+
         'must provide validation action'
@@ -1013,14 +1011,14 @@ describe('OptionSetter', function(){
 
     it('should set failedValidationAction', function(){
       var newAction = sinon.spy();
-      OptionSetter.setFailedValidationAction(newAction);
+      optionSetter.setFailedValidationAction(newAction);
       var defaults = {
         test: {
           type: 'string'
         }
       };
       var options = { test: 1 };
-      OptionSetter.setOptions({}, defaults, options);
+      optionSetter.setOptions({}, defaults, options);
       newAction.args[0].should.deep.equal([
         'test', 'must be type string', {}, false
       ]);
