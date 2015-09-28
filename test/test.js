@@ -18,16 +18,53 @@ beforeEach(function(){
   OptionSetter = new OptionSetterLib();
 });
 
+
 describe('OptionSetter', function(){
 
   it('should have version', function(){
     OptionSetter.version.should.equal('0.1.0');
   });
-  
-  it('should throw error if _ is not defined in browser');
-  it('should require lodash if _ not defined');
-  it('should error is lodash not defined returned');
 
+  describe('integration test', function(){
+    it('should pass', function(){
+      OptionSetter.addType({
+        name: 'apple', 
+        default: function(){ return 'apple' },
+        validator: function(value){ 
+          return value === 'apple'
+        }
+      });
+
+      var defaults = {
+        param1: { type: 'date', default: OptionSetter.default() },
+        param2: { type: 'string', default: 'param2' },
+        param3: { type: 'array' },
+        param4: 'param4', 
+        param5: { 
+          validator: function(v){ return v == 1 || v === 'one' }, 
+          require: true 
+        }, 
+        param6: { type: 'number', sourceName: 'p6', required: false },
+        param8: { type: 'apple' }
+
+      };
+
+      var options = {
+        param3: [1,2,3],
+        param5: 1,
+        p6: 2,
+        p7: 'done',
+        param8: 'apple'
+      };
+
+      var setOptions = OptionSetter.setOptions({}, defaults, options);
+      
+    });
+      
+
+    
+  });
+  
   describe('.setOptions', function(){
 
     it('should return setObject', function(){

@@ -79,7 +79,7 @@ function MyObject(options){
       // if options.param1 is provided, it must be a date
       // if not, provide auto date default, which is the return 
       // value of new Date()
-      type: 'date'
+      type: 'date',
       default: optionSetter.default()
     },
     param2: {
@@ -120,13 +120,13 @@ The above can be written more succicntly by removing comments:
 ```
 function MyObject(options){
   var defaults = {
-    param1: { type: 'date' default: optionSetter.default() },
+    param1: { type: 'date', default: optionSetter.default() },
     param2: { type: 'string', default: 'param2' },
     param3: { type: 'array' },
     param4: 'param4', 
     param5: { 
       // this can be written more succintly using ES2015's arrow functions
-      validator: function(v){ return value == 1 || value === 'one' }, 
+      validator: function(v){ return v == 1 || v === 'one' }, 
       require: true 
     }, 
     param6: { type: 'number', sourceName: 'p6', required: false }
