@@ -1,5 +1,17 @@
-expect = chai.expect;
-should = chai.should();
+if (typeof chai === 'undefined'){
+  var chai = require('chai');
+}
+
+if (typeof OptionSetter === 'undefined'){
+  var OptionSetter = require('../OptionSetter.js');
+}
+
+if (typeof sinon === 'undefined'){
+  var sinon = require('sinon');
+}
+
+var expect = chai.expect;
+var should = chai.should();
 
 var optionSetter;
 var root;

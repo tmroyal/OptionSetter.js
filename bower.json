@@ -1,0 +1,23 @@
+{
+  "name": "OptionSetter.js",
+  "main": "OptionSetter.js",
+  "version": "0.1.0",
+  "homepage": "https://github.com/tmroyal/OptionSetter.js",
+  "authors": [
+    "tmroyal <thomas.m.royal@gmail.com>"
+  ],
+  "description": "A library used to validate options objects.",
+  "moduleType": [],
+  "keywords": [
+    "options",
+    "validation"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
