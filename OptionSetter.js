@@ -12,6 +12,75 @@ var OptionSetter = function(){
     throw new Error('does not work');
   }
 
+  var defaultTypes = {
+    'boolean': {
+      name: 'boolean',
+      failMessage: 'must be type boolean',
+      default: function(){
+        return false;
+      },
+      validator: _.isBoolean
+    },
+
+    'number': {
+      name: 'number',
+      failMessage: 'must be type number',
+      default: function(){
+        return 0;
+      },
+      validator: function(value){
+        return _.isNumber(value) && !_.isNaN(value);
+      }
+    },
+
+    'object': {
+      name: 'object',
+      failMessage: 'must be type object',
+      default: function(){
+        return {};
+      },
+      validator: function(value){
+        return _.isObject(value) && !_.isFunction(value);
+      }
+    },
+
+    'array': {
+      name: 'array', 
+      failMessage: 'must be type array',
+      default: function(){
+        return [];
+      }, 
+      validator: _.isArray
+    }, 
+
+    'string': {
+      name: 'string', 
+      failMessage: 'must be type string',
+      default: function(){
+        return '';
+      }, 
+      validator: _.isString
+    },
+
+    'function': {
+      name: 'function', 
+      failMessage: 'must be type function',
+      default: function(){
+        return function(){};
+      }, 
+      validator: _.isFunction
+    },
+
+    'date': {
+      name: 'date', 
+      failMessage: 'must be type date',
+      default: function(){
+        return new Date();
+      }, 
+      validator: _.isDate
+    }
+  };
+
   function failedValidatonAction(name, message){
     throw new Error('OptionSetter.setOptions: '+name+' '+message);
   };
@@ -19,68 +88,8 @@ var OptionSetter = function(){
   function Setter(){
     this.version = '0.1.0' 
     this.failedValidationAction = failedValidatonAction;
-    this._types = {};
-    // built-in types
-
-    this.addType({
-      name: 'boolean',
-      default: function(){
-        return false;
-      },
-      validator: _.isBoolean
-    });
-
-    this.addType({
-      name: 'number',
-      default: function(){
-        return 0;
-      },
-      validator: function(value){
-        return _.isNumber(value) && !_.isNaN(value);
-      }
-    });
-
-    this.addType({
-      name: 'object',
-      default: function(){
-        return {};
-      },
-      validator: function(value){
-        return _.isObject(value) && !_.isFunction(value);
-      }
-    });
-
-    this.addType({
-      name: 'array', 
-      default: function(){
-        return [];
-      }, 
-      validator: _.isArray
-    });
-
-    this.addType({
-      name: 'string', 
-      default: function(){
-        return '';
-      }, 
-      validator: _.isString
-    });
-
-    this.addType({
-      name: 'function', 
-      default: function(){
-        return function(){};
-      }, 
-      validator: _.isFunction
-    });
-
-    this.addType({
-      name: 'date', 
-      default: function(){
-        return new Date();
-      }, 
-      validator: _.isDate
-    });
+    this._types = _.clone(defaultTypes);
+   
    };
 
   // a blank object is used as a unique reference
