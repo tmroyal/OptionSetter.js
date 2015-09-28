@@ -46,7 +46,7 @@ automatic defaults, standard validations, and other capbilities.
 
 ## Requirements
 
-Lodash/Underscore. (Custom lodash builds can use only the lang module.)
+Lodash/Underscore. 
 
 ## Usage
 
@@ -54,7 +54,8 @@ Lodash/Underscore. (Custom lodash builds can use only the lang module.)
 <script src="
 <script src="dst/OptionSetter.js"></script>
 <script>
-OptionsSetter.setOptions({},{},{});
+var optionSetter = new OptionSetter();
+optionSetter.setOptions({},{},{});
 </script>
 ```
 ## Installation
@@ -79,7 +80,7 @@ function MyObject(options){
       // if not, provide auto date default, which is the return 
       // value of new Date()
       type: 'date'
-      default: OptionSetter.default()
+      default: optionSetter.default()
     },
     param2: {
       // if options.param2 is provided, it must be a string
@@ -110,7 +111,7 @@ function MyObject(options){
 
   // set this to values which occur either in defaults or options, 
   // provided options validate
-  OptionSetter.setOptions(this, defaults, options);
+  optionSetter.setOptions(this, defaults, options);
 }
 ```
 
@@ -119,7 +120,7 @@ The above can be written more succicntly by removing comments:
 ```
 function MyObject(options){
   var defaults = {
-    param1: { type: 'date' default: OptionSetter.default() },
+    param1: { type: 'date' default: optionSetter.default() },
     param2: { type: 'string', default: 'param2' },
     param3: { type: 'array' },
     param4: 'param4', 
@@ -131,28 +132,28 @@ function MyObject(options){
     param6: { type: 'number', sourceName: 'p6', required: false }
   }
 
-  OptionSetter.setOptions(this, defaults, options);
+  optionSetter.setOptions(this, defaults, options);
 }
 ```
 
 In the above case, if any value in the options object fails validations set up by the defaults object,
-an error is thrown. (This behavior can be customized using `OptionSetter.setFailedValidationAction`.)
+an error is thrown. (This behavior can be customized using `optionSetter.setFailedValidationAction`.)
 
 To use the options object with defaults applied, rather than copy its
 keys and properties to `this`, one can write the following: 
 
 ```
-OptionSetter.setOptions(options, defaults, options);
+optionSetter.setOptions(options, defaults, options);
 ```
 or:
 
 ```
-options = OptionSetter.setOptions({}, defaults, options);
+options = optionSetter.setOptions({}, defaults, options);
 ```
 
 ## API Documentation
 
-### OptionSetter.setOptions(setObject, defaultsObject, optionsObject)
+### optionSetter.setOptions(setObject, defaultsObject, optionsObject)
 
 *Parameters*
 - `setObject` - the object on which to set properties
@@ -165,13 +166,13 @@ options = OptionSetter.setOptions({}, defaults, options);
 This method adds the validated properties in the `optionsObject`, plus applicable defaults from the `defaultsObject`, 
 to the `setObject`, and returns the `setObject`.
 
-If any value in the options object fails validation, an error is thrown. (This behavior can be customized using `OptionSetter.setFailedValidationAction`.)
+If any value in the options object fails validation, an error is thrown. (This behavior can be customized using `optionSetter.setFailedValidationAction`.)
 
 Note: any properties not referenced in the `defaultsObject` but included in the `optionsObject` are added to `setObject` without validation.
 
 ### defaultsObject (Object)
 
-The `defaultsObject` contains the defaults, type specfications, and validation information used by `OptionSetter.setOptions`. Its
+The `defaultsObject` contains the defaults, type specfications, and validation information used by `optionSetter.setOptions`. Its
 property names will appear in the `setObject` and, if a `sourceName` is not provided, the `optionsObject`. Each property may contain either a default value, or an object that sepcifies information used for validation, default generation, etc.
 
 Example: 
@@ -212,8 +213,8 @@ and act on it if it exists.
 The expected type of the value. 
 
 This can be one of the default types specified below or a user defined type
-created with `OptionSetter.addType`. Setting the type allows it to be validated as that type. 
-Further, when the default property is set to `OptionSetter.default()`, the default will be provided 
+created with `optionSetter.addType`. Setting the type allows it to be validated as that type. 
+Further, when the default property is set to `optionSetter.default()`, the default will be provided 
 according to the type specified.  (For example, the 'date' type provides a 
 default of the result of `new Date()`.)
 
@@ -229,7 +230,7 @@ name: {
 // which is the default setup by OptionSetter
 date: {
   type: 'date',
-  default: OptionSetter.default()
+  default: optionSetter.default()
 }
 ```
 
@@ -271,7 +272,7 @@ This function will also be called if item is ommited.
 The function will be passed the following parameters:
 - `name` - the name of the object
 - `message` - the error message
-- `setObject` - the setObject, the first argument of `OptionSetter.setOptions`. 
+- `setObject` - the setObject, the first argument of `optionSetter.setOptions`. 
 - `itemOmitted` (boolean) - whether or not this is a validation error
 (false) or an error generated from an item being omitted (true).
 
@@ -374,7 +375,7 @@ var default2 = {}; // does not cause error, 42 is used
 var default2 = { name: '42' }; // does not cause error
 ```
 
-If the default is `OptionSetter.default()`, OptionSetter will automatically provide
+If the default is `optionSetter.default()`, OptionSetter will automatically provide
 a default based on the type definition.
 
 ### default types
@@ -438,14 +439,14 @@ Validates if valid date.
 Default: result of new Date()
 
 
-### OptionSetter.addType({typeDefinition})
+### optionSetter.addType({typeDefinition})
 
 Custom types can be defined in OptionSetter. This is achieved by calling `addType` 
 with a *Type Definition* object.
 
 *Type definition properties*
 - `name` (string) - the name of the type
-- `default` (function) - a function that will return the default value for the type when `OptionSetter.default()` is the default value
+- `default` (function) - a function that will return the default value for the type when `optionSetter.default()` is the default value
 - `validator` (function) - a function that returns a boolean to indicate whether provided value is valid
 - `failMessage` (string|optional) - the message generated when validation fails
 
@@ -460,7 +461,7 @@ Currently, it is impossible to overwrite a type. This is to prevent overwriting 
 Example:
 
 ```
-OptionSetter.addType(
+optionSetter.addType(
   {
     name: 'lower-case letter',
     default: function(){ return 'a'; },
@@ -470,11 +471,11 @@ OptionSetter.addType(
 );
 ```
 
-### OptionSetter.addTypes([typeDefinitions])
+### optionSetter.addTypes([typeDefinitions])
 
-This is the same as `OptionSetter.addType`, except it takes an array of *type definitions*.
+This is the same as `optionSetter.addType`, except it takes an array of *type definitions*.
 
-### OptionSetter.getValidator(name)
+### optionSetter.getValidator(name)
 
 Return the default validator associated with the `name`. Useful for combining validators within custom validators.
 
@@ -482,13 +483,13 @@ Return the default validator associated with the `name`. Useful for combining va
 var default = {
   numberOrString: {
     validator: function(value){
-      return OptionSetter.getValidator('number') || OptionSetter.getValidator('string');
+      return optionSetter.getValidator('number') || optionSetter.getValidator('string');
     }
   }
 };
 ```
 
-### OptionSetter.setFailedValidationAction(failureAction)
+### optionSetter.setFailedValidationAction(failureAction)
 
 OptionSetter's default behavior is to throw an error if validation fails. This behavior can be altered globally by providing
 a function that sets up alternative behaviors.
@@ -496,14 +497,14 @@ a function that sets up alternative behaviors.
 The function is provided with the following parameters:
 - `name` - the name of the property that fails validation or is omitted
 - `message` - the 'error' message provided by the type definition or paramter
-- `setObject` - the setObject, the first argument of `OptionSetter.setOptions`. 
+- `setObject` - the setObject, the first argument of `optionSetter.setOptions`. 
 - `itemOmitted` (boolean) - whether or not this is a validation error
 (false) or an error generated from an item being omitted (true).
 
 
 Example:
 ```
-OptionSetter.setFailedValidationAction(function(name, message){
+optionSetter.setFailedValidationAction(function(name, message){
   console.warn('Error: '+name+' '+message);  
 });
 ```

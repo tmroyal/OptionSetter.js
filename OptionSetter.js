@@ -7,42 +7,109 @@ var _ = require('lodash');
 // TODO : start with semicolon?
 
 var OptionSetter = function(){
+
   if (_ === undefined){
     throw new Error('does not work');
   }
 
-  var Setter = {
-    version: '0.1.0' 
-  };
-
-  var setter_default = {};
-
-  Setter.default = function(){ return setter_default; }
-
-  // the default failed validation action for the library.
-  // can be overwritten with OptionSetter.setFailedValidationAction
-  var failedValidationAction = function(name, message){
+  function failedValidatonAction(name, message){
     throw new Error('OptionSetter.setOptions: '+name+' '+message);
   };
 
-  Setter.setFailedValidationAction = function(newAction){
+  function Setter(){
+    this.version = '0.1.0' 
+    this.failedValidationAction = failedValidatonAction;
+    this._types = {};
+    // built-in types
+
+    this.addType({
+      name: 'boolean',
+      default: function(){
+        return false;
+      },
+      validator: _.isBoolean
+    });
+
+    this.addType({
+      name: 'number',
+      default: function(){
+        return 0;
+      },
+      validator: function(value){
+        return _.isNumber(value) && !_.isNaN(value);
+      }
+    });
+
+    this.addType({
+      name: 'object',
+      default: function(){
+        return {};
+      },
+      validator: function(value){
+        return _.isObject(value) && !_.isFunction(value);
+      }
+    });
+
+    this.addType({
+      name: 'array', 
+      default: function(){
+        return [];
+      }, 
+      validator: _.isArray
+    });
+
+    this.addType({
+      name: 'string', 
+      default: function(){
+        return '';
+      }, 
+      validator: _.isString
+    });
+
+    this.addType({
+      name: 'function', 
+      default: function(){
+        return function(){};
+      }, 
+      validator: _.isFunction
+    });
+
+    this.addType({
+      name: 'date', 
+      default: function(){
+        return new Date();
+      }, 
+      validator: _.isDate
+    });
+   };
+
+  // a blank object is used as a unique reference
+  // returned from Setter.default()
+  var setter_default = {};
+
+  Setter.prototype.default = function(){ return setter_default; }
+
+  // the default failed validation action for the library.
+  // It can be overwritten with 
+  // OptionSetter.setFailedValidationAction
+  Setter.prototype.setFailedValidationAction = function(newAction){
     verifyFunction({
       input: newAction, inputName: 'validation action', 
       errPrefix: 'OptionSetter.setFailedValidationAction:'
     });
 
-    failedValidationAction = newAction;
+    this.failedValidationAction = newAction;
   };
 
-  // these functions are for util functions in the library.
-  // they do not provide the validations that the end user
-  // uses, but are only used internally.
+  // internally used validations.
+  // cannot be overridden
+  // (external validation is handled by .addType())
   // throws Error if not provided valid argument type
   function verifyType(opt){
     opt.errPrefix = opt.errPrefix || 'OptionSetter:';
 
     if (opt.input === undefined){
-      throw new Error(opt.errPrefix+ ' must provide '+opt.inputName);
+      throw new Error(opt.errPrefix+' must provide '+opt.inputName);
 
     } else if (!opt.verifyCB(opt.input)){
       throw new Error(
@@ -77,7 +144,7 @@ var OptionSetter = function(){
     verifyType(opt);
   }
 
-  // add all options not metioned in usedOptions to setObject
+  // copy all options not metioned in usedOptions to setObject
   // and return setObject
   function applyUnusedOptions(setObject, options, usedOptions){
     for (var option in options){
@@ -92,17 +159,17 @@ var OptionSetter = function(){
 
 
   // returns validated value, or undefined if
-  // value does not validate
+  // value does not validate.
+  // performs validation fail on failure.
   function validatedValue(value, defaultName, def, setObj, failCB){
     var type, defaultValidator;
     var valid;
     var failMessage;
-
       
     // get default validator and fail message from type
     // if provided. fail if given not defined type
     if (def.type !== undefined){
-      type = Setter._types[def.type];
+      type = this._types[def.type];
 
       if (type === undefined){
         failCB(
@@ -157,7 +224,7 @@ var OptionSetter = function(){
     var def = defaults[defaultName];
     var optionName;
     var value;
-    var failCB = def.failedValidationAction || failedValidationAction;
+    var failCB = def.failedValidationAction || this.failedValidationAction;
 
     if ( _.isObject(def) ){
       optionName = def.sourceName !== undefined ?  
@@ -176,9 +243,11 @@ var OptionSetter = function(){
       value = options[optionName];
 
       if (value !== undefined && 
-          (def.validator !== undefined || def.type !== undefined)){
-        value = 
-          validatedValue(value, defaultName, def, setObj, failCB);
+          (def.validator !== undefined || def.type !== undefined))
+      {
+        value = validatedValue.call(
+          this, value, defaultName, def, setObj, failCB
+        );
         return {
           optionName: optionName,
           value: value
@@ -187,7 +256,7 @@ var OptionSetter = function(){
 
       if (value === undefined && def.default !== undefined) {
         if (def.default === setter_default){
-          var type = Setter._types[def.type];
+          var type = this._types[def.type];
           if (type === undefined){
             failCB(
               defaultName,
@@ -216,7 +285,7 @@ var OptionSetter = function(){
     };
   }
 
-  Setter.setOptions = function(setObject, defaults, options){
+  Setter.prototype.setOptions = function(setObject, defaults, options){
     var usedOptions = {};
 
     verifyObject({
@@ -237,7 +306,7 @@ var OptionSetter = function(){
     for (var def in defaults){
       if (defaults.hasOwnProperty(def)){
         var reconciledDef = 
-          reconcileDefault(def, defaults, options, setObject);
+          reconcileDefault.call(this,def, defaults, options, setObject);
         if (reconciledDef.value !== undefined){
           setObject[def] = reconciledDef.value;
         }
@@ -250,9 +319,8 @@ var OptionSetter = function(){
     return setObject;
   };
 
-  Setter._types = {};
 
-  Setter.addType = function(typeDefinition){
+  Setter.prototype.addType = function(typeDefinition){
     var errPrefix = 'OptionSetter.addType:';
 
     verifyObject({ input: typeDefinition, 
@@ -265,7 +333,6 @@ var OptionSetter = function(){
       typeDefinition.failMessage = 
         'must be type '+typeDefinition.name;
     }
-
 
     verifyFunction({ input: typeDefinition.default, 
       inputName: 'default', errPrefix: errPrefix });
@@ -285,7 +352,7 @@ var OptionSetter = function(){
     }
   };
 
-  Setter.getValidator = function(typeName){
+  Setter.prototype.getValidator = function(typeName){
     verifyString({ input: typeName, inputName: 'type name', 
       errPrefix: 'OptionSetter.getValidator:'});
 
@@ -297,7 +364,7 @@ var OptionSetter = function(){
     return this._types[typeName].validator;
   };
 
-  Setter.addTypes = function(typeDefs){
+  Setter.prototype.addTypes = function(typeDefs){
     verifyArray({
       input: typeDefs, inputName: 'type definitions',
       errPrefix: 'OptionSetter.addTypes:'
@@ -306,69 +373,8 @@ var OptionSetter = function(){
      this.addType(typeDefs[i]);
     }
   };
-
-  // built-in types
-
-  Setter.addType({
-    name: 'boolean',
-    default: function(){
-      return false;
-    },
-    validator: _.isBoolean
-  });
-
-  Setter.addType({
-    name: 'number',
-    default: function(){
-      return 0;
-    },
-    validator: function(value){
-      return _.isNumber(value) && !_.isNaN(value);
-    }
-  });
-
-  Setter.addType({
-    name: 'object',
-    default: function(){
-      return {};
-    },
-    validator: function(value){
-      return _.isObject(value) && !_.isFunction(value);
-    }
-  });
-
-  Setter.addType({
-    name: 'array', 
-    default: function(){
-      return [];
-    }, 
-    validator: _.isArray
-  });
-
-  Setter.addType({
-    name: 'string', 
-    default: function(){
-      return '';
-    }, 
-    validator: _.isString
-  });
-
-
-  Setter.addType({
-    name: 'function', 
-    default: function(){
-      return function(){};
-    }, 
-    validator: _.isFunction
-  });
-
-  Setter.addType({
-    name: 'date', 
-    default: function(){
-      return new Date();
-    }, 
-    validator: _.isDate
-  });
+ 
+  // return library
 
   return Setter;
 }();

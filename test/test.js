@@ -3,7 +3,8 @@ var expect = chai.expect;
 var should = chai.should();
 var sinon = require('sinon');
 
-var OptionSetter; 
+var OptionSetter;
+var OptionSetterLib = require('../OptionSetter.js');; 
 var root;
 
 // if browser, root = window, if node, root = global
@@ -14,7 +15,7 @@ try {
 }
 
 beforeEach(function(){
-  OptionSetter = require('../OptionSetter.js');
+  OptionSetter = new OptionSetterLib();
 });
 
 describe('OptionSetter', function(){
@@ -25,7 +26,7 @@ describe('OptionSetter', function(){
   
   it('should throw error if _ is not defined in browser');
   it('should require lodash if _ not defined');
-  it('should error is lodash not returned');
+  it('should error is lodash not defined returned');
 
   describe('.setOptions', function(){
 
