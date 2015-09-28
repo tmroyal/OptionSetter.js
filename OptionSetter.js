@@ -15,10 +15,6 @@
 
   var OptionSetter = function(){
 
-    if (_ === undefined){
-      throw new Error('does not work');
-    }
-
     var defaultTypes = {
       'boolean': {
         name: 'boolean',
