@@ -90,18 +90,18 @@
 
     function failedValidatonAction(name, message){
       throw new Error('OptionSetter.setOptions: '+name+' '+message);
-    };
+    }
 
     function Setter(){
-      this.version = '0.1.0' 
+      this.version = '0.1.0';
       this.failedValidationAction = failedValidatonAction;
       this._types = _.clone(defaultTypes);
-     };
+     }
 
     // a blank object is used as a unique reference
     // returned from OptionSetter.default()
     var setter_default = {};
-    Setter.prototype.default = function(){ return setter_default; }
+    Setter.prototype.default = function(){ return setter_default; };
 
     // overwrites this.failedValidationAction
     Setter.prototype.setFailedValidationAction = function(newAction){
@@ -171,7 +171,8 @@
       // get default validator and fail message from type
       // if provided. fail if given not defined type
       if (deflt.type !== undefined){
-        type = this._types[deflt.type];
+        
+        type = this._types[deflt.type]; // jshint ignore: line
 
         if (type === undefined){
           failCB(
@@ -188,7 +189,7 @@
         failMessage = deflt.failMessage || type.failMessage;
       } else {
 
-        defaultValidator = function(){ return true; }
+        defaultValidator = function(){ return true; };
         failMessage = deflt.failMessage || 'failed validation';
       }
 
@@ -215,7 +216,7 @@
         failCB(defaultName, failMessage, setObj, false);
         return;
       }
-    };
+    }
 
     // for defaultName, which should occur in defaults, either provide
     // the validated options value associated with defaultName
@@ -227,8 +228,8 @@
       var deflt = defaults[defaultName];
       var optionName;
       var value;
-      var failCB = deflt.failedValidationAction
-                   || this.failedValidationAction;
+      var failCB = deflt.failedValidationAction || 
+                   this.failedValidationAction; // jshint ignore: line
 
       if ( _.isObject(deflt) ){
         optionName = deflt.sourceName !== undefined ?  
@@ -247,12 +248,12 @@
         value = options[optionName];
 
         if (value !== undefined && 
-            (deflt.validator !== undefined 
-             || deflt.type !== undefined)
+            (deflt.validator !== undefined || 
+             deflt.type !== undefined)
            )
         {
           value = validatedValue.call(
-            this, value, defaultName, deflt, setObj, failCB
+            this, value, defaultName, deflt, setObj, failCB // jshint ignore: line
           );
           return {
             optionName: optionName,
@@ -262,7 +263,7 @@
 
         if (value === undefined && deflt.default !== undefined) {
           if (deflt.default === setter_default){
-            var type = this._types[deflt.type];
+            var type = this._types[deflt.type]; // jshint ignore: line
             if (type === undefined){
               failCB(
                 defaultName,
@@ -366,26 +367,26 @@
 
     // throws error if not provided object
     function verifyObject(opt){
-      opt.verifyCB = _.isObject
+      opt.verifyCB = _.isObject;
       opt.typeName = 'object';
       verifyType(opt);
     }
     
     // etc.
     function verifyFunction(opt){
-      opt.verifyCB = _.isFunction
+      opt.verifyCB = _.isFunction;
       opt.typeName = 'function';
       verifyType(opt);
     }
     
     function verifyString(opt){
-      opt.verifyCB = _.isString
+      opt.verifyCB = _.isString;
       opt.typeName = 'string';
       verifyType(opt);
     }
 
     function verifyArray(opt){
-      opt.verifyCB = _.isArray
+      opt.verifyCB = _.isArray;
       opt.typeName = 'array';
       verifyType(opt);
     }
