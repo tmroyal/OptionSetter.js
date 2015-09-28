@@ -53,7 +53,7 @@ Lodash/Underscore.
 
 ```
 <script src="
-<script src="dst/OptionSetter.js"></script>
+<script src="OptionSetter.js"></script>
 <script>
 var optionSetter = new OptionSetter();
 optionSetter.setOptions({},{},{});
