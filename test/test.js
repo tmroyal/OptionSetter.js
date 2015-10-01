@@ -334,6 +334,7 @@ describe('OptionSetter', function(){
           var options = { test: 1 };
           
           optionSetter.setOptions({}, defaults, options);
+          defaults.test.failedValidationAction.called.should.be.true;
         }); 
 
         it('should be called with name, message, setObject and ommission error',
@@ -556,7 +557,6 @@ describe('OptionSetter', function(){
           function(){
               var defaults = {
                 test: {
-                  type: 'does not exist',
                   default: optionSetter.default()
                 }
               };

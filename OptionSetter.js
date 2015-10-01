@@ -96,8 +96,8 @@
 
     // a blank object is used as a unique reference
     // returned from OptionSetter.default()
-    var setter_default = {};
-    Setter.prototype.default = function(){ return setter_default; };
+    var SETTER_DEFAULT = {};
+    Setter.prototype.default = function(){ return SETTER_DEFAULT; };
 
     // overwrites this.failedValidationAction
     Setter.prototype.setFailedValidationAction = function(newAction){
@@ -108,6 +108,7 @@
 
       this.failedValidationAction = newAction;
     };
+
 
     Setter.prototype.setOptions = function(setObject, defaults, options){
       var usedOptions = {};
@@ -129,12 +130,19 @@
 
       for (var deflt in defaults){
         if (defaults.hasOwnProperty(deflt)){
-          var reconciledDef = 
-            reconcileDefault.call(this, deflt, defaults, options, setObject);
-          if (reconciledDef.value !== undefined){
-            setObject[deflt] = reconciledDef.value;
+          var validation = new Validation(this._types, setObject, deflt, defaults, options);
+
+          if (validation.value !== undefined){
+            setObject[deflt] = validation.value;
+          } else if (validation.error !== undefined){
+            this.failedValidationAction(
+                deflt, 
+                validation.error, 
+                setObject, 
+                validation.presenceError === true
+            );
           }
-          usedOptions[reconciledDef.optionName] = true;
+          usedOptions[validation.optionName] = true;
         }
       }
 
@@ -147,147 +155,15 @@
     // and return setObject
     function applyUnusedOptions(setObject, options, usedOptions){
       for (var option in options){
-        if (options.hasOwnProperty(option) && !usedOptions[option])
+        if (options.hasOwnProperty(option) && 
+            usedOptions[option] === undefined)
         {
           setObject[option] = options[option];
         }
       }
-      return setObject;
     }
 
-
-    // returns validated value, or undefined if
-    // value does not validate.
-    // performs validation fail on failure.
-    function validatedValue(value, defaultName, deflt, setObj, failCB){
-      var type, defaultValidator;
-      var valid;
-      var failMessage;
-        
-      // get default validator and fail message from type
-      // if provided. fail if given not defined type
-      if (deflt.type !== undefined){
-        
-        type = this._types[deflt.type]; // jshint ignore: line
-
-        if (type === undefined){
-          failCB(
-            defaultName, 
-            'refers to type "'+deflt.type+'" which has not been defined',
-            setObj, 
-            false
-          );
-
-          return;
-        }
-
-        defaultValidator = type.validator;
-        failMessage = deflt.failMessage || type.failMessage;
-      } else {
-
-        defaultValidator = function(){ return true; };
-        failMessage = deflt.failMessage || 'failed validation';
-      }
-
-      // validate with either type validator
-      // or provided validator
-      if (deflt.validator !== undefined){
-        valid = deflt.validator(value, defaultValidator);
-      } else {
-        valid = defaultValidator(value); 
-      }
-
-      if (!_.isBoolean(valid)){
-        failCB(
-          defaultName, 
-          'has a validator that returns non-boolean',
-          setObj,
-          false
-        );
-      }
-
-      if (valid){
-        return value;
-      } else {
-        failCB(defaultName, failMessage, setObj, false);
-        return;
-      }
-    }
-
-    // for defaultName, which should occur in defaults, either provide
-    // the validated options value associated with defaultName
-    // (or defaults[defaultName].sourceName), or the default.
-    // return object containing value (or undefined if 
-    // validation fails or there is no value) and either
-    // default name or, if it exists, defaults[defaultName].sourceName
-    function reconcileDefault(defaultName, defaults, options, setObj){
-      var deflt = defaults[defaultName];
-      var optionName;
-      var value;
-      var failCB = deflt.failedValidationAction || 
-                   this.failedValidationAction; // jshint ignore: line
-
-      if ( _.isObject(deflt) ){
-        optionName = deflt.sourceName !== undefined ?  
-                        deflt.sourceName : defaultName;
-
-        if (!_.isString(optionName)){
-          failCB(
-            defaultName,
-            'has a non-string sourceName',
-            setObj, 
-            false
-          );
-          return { optionName: optionName };
-        }
-
-        value = options[optionName];
-
-        if (value !== undefined && 
-            (deflt.validator !== undefined || 
-             deflt.type !== undefined)
-           )
-        {
-          value = validatedValue.call(
-            this, value, defaultName, deflt, setObj, failCB // jshint ignore: line
-          );
-          return {
-            optionName: optionName,
-            value: value
-          };
-        }
-
-        if (value === undefined && deflt.default !== undefined) {
-          if (deflt.default === setter_default){
-            var type = this._types[deflt.type]; // jshint ignore: line
-            if (type === undefined){
-              failCB(
-                defaultName,
-                'uses OptionSetter.default() without an existing type',
-                setObj,
-                false
-              );
-            }
-            value = type.default();
-          } else {
-            value = deflt.default;
-          }
-        }
-
-        if (value === undefined && deflt.required !== false){
-          failCB(defaultName, 'must be provided', setObj, true);
-        }
-      } else {
-        optionName = defaultName;
-        value = options[optionName] || deflt;
-      }
-
-      return {
-        optionName: optionName,
-        value: value
-      };
-    }
-
+    // discovers property and validates
     Setter.prototype.addType = function(typeDefinition){
       var errPrefix = 'OptionSetter.addType:';
 
@@ -386,6 +262,153 @@
       opt.typeName = 'array';
       verifyType(opt);
     }
+
+    function Validation(types, setObject, defaultName, defaults, options){
+      this.defaultName = defaultName;
+      this.defaultObject = defaults[defaultName];
+
+      var validationSteps = [
+        this.determineType.bind(this,types),
+        this.determineDefault.bind(this),
+        this.determineOptionName.bind(this),
+        this.setValue.bind(this,options),
+        this.validatePresence.bind(this),
+        this.validateValue.bind(this)
+      ];
+
+      var step = 0;
+
+      while (step < validationSteps.length && 
+             this.error === undefined)
+      {
+        validationSteps[step]();
+        step++; 
+      }
+
+      if (this.error !== undefined && 
+          this.defaultObject.failedValidationAction !== undefined){
+        this.consumeError(setObject);
+      }
+    };
+
+    Validation.prototype.setError = function(msg){
+      if ( this.defaultObject.failMessage !== undefined){
+        this.error = this.defaultObject.failMessage;
+      } else {
+      this.error = msg;
+      }
+      // we remove this.value when there is an error
+      delete this.value;
+    };
+
+    Validation.prototype.consumeError = function(setObject){
+      this.defaultObject.failedValidationAction(
+        this.defaultName,
+        this.error, 
+        setObject,
+        this.presenceError === true
+      );
+      delete this.error;
+    };
+
+    Validation.prototype.determineType = function(types){
+      var typeName = this.defaultObject.type;
+
+      if (typeName !== undefined){
+        this.type = types[typeName];
+        if (this.type === undefined){
+          this.setError(
+            'refers to type "'+typeName+'" which has not been defined'
+          );
+        }
+      }
+    };
+
+    Validation.prototype.determineDefault = function(){
+      if (!_.isObject(this.defaultObject)){
+        this.default = this.defaultObject;
+      } else {
+        this.default = this.defaultObject.default;
+        if (this.default === SETTER_DEFAULT){
+          this.handleSetterDefault();
+        }
+      }
+    };
+
+    Validation.prototype.handleSetterDefault = function(){
+      if (this.type === undefined){
+        this.setError(
+          'uses OptionSetter.default() without an existing type'
+        );
+      } else {
+        this.default = this.type.default();
+      }
+    };
+
+    Validation.prototype.determineOptionName = function(){
+      var sourceName = this.defaultObject.sourceName;
+      if (sourceName !== undefined){
+        if (!_.isString(sourceName)){
+          this.setError('has a non-string sourceName')
+          return;
+        }
+        this.optionName = this.defaultObject.sourceName;
+      } else {
+        this.optionName = this.defaultName;
+      }
+    };
+    
+    Validation.prototype.setValue = function(options){
+      this.value = options[this.optionName];
+      if (this.value === undefined){
+        this.shouldValidate = false;
+        this.value = this.default; // which may itself be undefined
+      } else {
+        this.shouldValidate = true;
+      }
+    };
+
+    Validation.prototype.validatePresence = function(){
+      if (this.value === undefined &&
+          this.defaultObject.required !== false)
+      {
+        this.setError('must be provided');
+        this.presenceError = true;
+      } 
+    };
+
+    Validation.prototype.validateValue = function(){
+      if (this.value !== undefined && this.shouldValidate){
+        var typeValidator = this.type ? 
+            this.type.validator : 
+            function(){ return true ;}
+        var propValidator = this.defaultObject.validator;
+        var failMessage = this.getFailMessage();
+        
+        if (propValidator !== undefined){
+          this.valid = propValidator(this.value, typeValidator);
+        } else {
+          this.valid = typeValidator(this.value);
+        }
+
+        if (!_.isBoolean(this.valid)){
+          this.setError('has a validator that returns non-boolean');
+        } else if (!this.valid){
+          this.setError( failMessage );
+        }
+      }
+    };
+
+    Validation.prototype.getFailMessage = function(){
+      if (this.failMessage !== undefined){
+        return this.failMessage;
+      } else if (this.type !== undefined){
+        return this.type.failMessage;
+      } else {
+        return 'failed validation'
+      }
+    };
+
 
     return Setter;
   }();
