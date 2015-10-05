@@ -130,13 +130,15 @@
 
       for (var deflt in defaults){
         if (defaults.hasOwnProperty(deflt)){
-          var validation = new Validation(this._types, setObject, deflt, defaults, options);
+          var validation = new Validation(
+                this._types, setObject, deflt, defaults, options
+              );
 
           if (validation.value !== undefined){
             setObject[deflt] = validation.value;
           } else if (validation.error !== undefined){
             this.failedValidationAction(
-                deflt, 
+                validation.optionName || deflt, 
                 validation.error, 
                 setObject, 
                 validation.presenceError === true
@@ -303,7 +305,7 @@
 
     Validation.prototype.consumeError = function(setObject){
       this.defaultObject.failedValidationAction(
-        this.defaultName,
+        this.optionName,
         this.error, 
         setObject,
         this.presenceError === true

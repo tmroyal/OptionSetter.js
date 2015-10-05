@@ -478,6 +478,27 @@ describe('OptionSetter', function(){
 
         });
 
+        it('should be used as the name in an error', function(){
+          var defaults = {
+            test: { 
+              sourceName: 'sourceName',
+              validator: function(){
+                return false;
+              }
+            }
+          };
+
+          var options = {
+            sourceName: '1'
+          };
+
+          expect(function(){
+            optionSetter.setOptions({}, defaults, options);
+          }).to.throw(
+            'OptionSetter.setOptions: sourceName failed validation'
+          );
+        });
+
       });
 
       describe('default', function(){
