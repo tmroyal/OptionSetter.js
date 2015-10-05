@@ -137,6 +137,14 @@ describe('OptionSetter', function(){
       );
     });
 
+    it('should use error prefix provided', function(){
+      expect(function(){
+        optionSetter.setOptions({},{}, undefined, 'PREFIX:')
+      }).to.throw(
+        'PREFIX: must provide options object'
+      );
+    });
+
     describe('optionsObject', function(){
       it('should copy properties not in defaultsObject to setObject',
         function(){

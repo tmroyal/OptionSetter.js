@@ -110,22 +110,22 @@
     };
 
 
-    Setter.prototype.setOptions = function(setObject, defaults, options){
+    Setter.prototype.setOptions = function(setObject, defaults, options, prefix){
       var usedOptions = {};
 
       verifyObject({
         input: setObject, inputName: 'setObject', 
-        errPrefix: 'OptionSetter.setOptions:'
+        errPrefix: prefix || 'OptionSetter.setOptions:'
       });
 
       verifyObject({
         input: defaults, inputName: 'defaults object', 
-        errPrefix: 'OptionSetter.setOptions:'
+        errPrefix: prefix || 'OptionSetter.setOptions:'
       });
 
       verifyObject({
         input: options, inputName: 'options object', 
-        errPrefix: 'OptionSetter.setOptions:'
+        errPrefix: prefix || 'OptionSetter.setOptions:'
       });
 
       for (var deflt in defaults){
