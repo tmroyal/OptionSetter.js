@@ -154,12 +154,13 @@ options = optionSetter.setOptions({}, defaults, options);
 
 ## API Documentation
 
-### optionSetter.setOptions(setObject, defaultsObject, optionsObject)
+### optionSetter.setOptions(setObject, defaultsObject, optionsObject, errPrefix)
 
 *Parameters*
 - `setObject` - the object on which to set properties
 - `defaultsObject` - the object which contains defaults, type specifications, and other validation information (see below)
 - `optionsObject` - the object whose properties are copied to the setObject if validated successfully
+- `errPrefix` - string that is used in the event that one of the above options are not provided
 
 *Returns*
 `setObject` with options added, or original `setObject` if validation fails
@@ -168,6 +169,8 @@ This method adds the validated properties in the `optionsObject`, plus applicabl
 to the `setObject`, and returns the `setObject`.
 
 If any value in the options object fails validation, an error is thrown. (This behavior can be customized using `optionSetter.setFailedValidationAction`.)
+
+The errPrefix simplifies the validation of whether a property is included in setOptions.
 
 Note: any properties not referenced in the `defaultsObject` but included in the `optionsObject` are added to `setObject` without validation.
 

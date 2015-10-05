@@ -1,6 +1,6 @@
 {
   "name": "optionsetter.js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A library to simplify the use of options objects.",
   "main": "OptionSetter.js",
   "scripts": {
