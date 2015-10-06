@@ -291,7 +291,7 @@
           this.defaultObject.failedValidationAction !== undefined){
         this.consumeError(setObject);
       }
-    };
+    }
 
     Validation.prototype.setError = function(msg){
       if ( this.defaultObject.failMessage !== undefined){
@@ -351,7 +351,7 @@
       var sourceName = this.defaultObject.sourceName;
       if (sourceName !== undefined){
         if (!_.isString(sourceName)){
-          this.setError('has a non-string sourceName')
+          this.setError('has a non-string sourceName');
           return;
         }
         this.optionName = this.defaultObject.sourceName;
@@ -383,7 +383,7 @@
       if (this.value !== undefined && this.shouldValidate){
         var typeValidator = this.type ? 
             this.type.validator : 
-            function(){ return true ;}
+            function(){ return true ;};
         var propValidator = this.defaultObject.validator;
         var failMessage = this.getFailMessage();
         
@@ -407,7 +407,7 @@
       } else if (this.type !== undefined){
         return this.type.failMessage;
       } else {
-        return 'failed validation'
+        return 'failed validation';
       }
     };
 
